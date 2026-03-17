@@ -1,7 +1,7 @@
 ---
 title: Epoch — macOS Menubar Countdown Timer
 type: feat
-status: active
+status: completed
 date: 2026-03-17
 origin: docs/brainstorms/2026-03-17-countdown-timer-menubar-app-brainstorm.md
 ---
@@ -537,38 +537,38 @@ Call this in `handleStateTransitions()` when `timerModel.state == .running`.
 
 ### Phase 1: App Shell + Timer Model + Basic Popover
 
-- [ ] Create Xcode project: macOS App, Swift, target macOS 14, bundle ID `de.nfelger.epoch`
-- [ ] Delete generated `ContentView.swift` and `@main App` struct boilerplate
-- [ ] Add `@main` to `AppDelegate.swift`; add `NSPrincipalClass = $(PRODUCT_MODULE_NAME).AppDelegate` to Info.plist target settings
-- [ ] Set `LSUIElement = YES` in Info.plist (Application is agent)
-- [ ] Implement `NSStatusItem` with timer SF Symbol + `NSPopover` with stub content
-- [ ] Implement `TimerModel` with state machine, `start()`, `cancel()`, `tick()`, `adjustRemaining()`
-- [ ] Implement `AppDelegate.observeModel()` with `withObservationTracking`; drive status item from model state
-- [ ] Enable `ENABLE_HARDENED_RUNTIME = YES` in target build settings
-- [ ] Add `UNUserNotificationCenter.current().delegate = self` in `applicationWillFinishLaunching`
+- [x] Create Xcode project: macOS App, Swift, target macOS 14, bundle ID `de.nfelger.epoch`
+- [x] Delete generated `ContentView.swift` and `@main App` struct boilerplate
+- [x] Add `@main` to `EpochApp.swift` with `@NSApplicationDelegateAdaptor`; `NSPrincipalClass` not needed with SwiftUI App entry point
+- [x] Set `LSUIElement = YES` in Info.plist (Application is agent)
+- [x] Implement `NSStatusItem` with timer SF Symbol + `NSPopover` with stub content
+- [x] Implement `TimerModel` with state machine, `start()`, `cancel()`, `tick()`, `adjustRemaining()`
+- [x] Implement `AppDelegate.observeModel()` with `withObservationTracking`; drive status item from model state
+- [x] Enable `ENABLE_HARDENED_RUNTIME = YES` in target build settings
+- [x] Add `UNUserNotificationCenter.current().delegate = self` in `applicationWillFinishLaunching`
 
 **Success criteria:** App shows timer icon in menubar, no Dock entry. `timerModel.start(duration: 10)` → menubar counts down → `timerModel.cancel()` → icon returns.
 
 ### Phase 2: Arc Dial
 
-- [ ] `ArcDialView` — `GeometryReader` + `Canvas` drawing background ring + filled arc + knob dot
-- [ ] `DragGesture` with cumulative angle tracking (wrap-safe delta computation)
-- [ ] Soft snap: ±5° tolerance, snap pulse via `scaleEffect` + `withAnimation`
-- [ ] Drag-release → `model.start()` if duration ≥ 60s; else reset arc to 0
-- [ ] Running state: arc fraction = `remaining / totalDuration`; dial still draggable → `model.adjustRemaining()`
-- [ ] Center label inline in `ArcDialView`: end time (blue) + Xm (large) + Xs (gray, running only)
-- [ ] End time uses `DateFormatter.timeStyle = .short` for locale-correct 12/24h
-- [ ] Cancel button in `PopoverContentView` → `model.cancel()`; AppDelegate closes popover via state observation
+- [x] `ArcDialView` — `GeometryReader` + `Canvas` drawing background ring + filled arc + knob dot
+- [x] `DragGesture` with cumulative angle tracking (wrap-safe delta computation)
+- [x] Soft snap: ±5° tolerance, snap pulse via `scaleEffect` + `withAnimation`
+- [x] Drag-release → `model.start()` if duration ≥ 60s; else reset arc to 0
+- [x] Running state: arc fraction = `remaining / totalDuration`; dial still draggable → `model.adjustRemaining()`
+- [x] Center label inline in `ArcDialView`: end time (blue) + Xm (large) + Xs (gray, running only)
+- [x] End time uses `DateFormatter.timeStyle = .short` for locale-correct 12/24h
+- [x] Cancel button in `PopoverContentView` → `model.cancel()`; AppDelegate closes popover via state observation
 
 **Success criteria:** Full drag-set-and-start flow. Snap pulses at 5-min marks. Running arc drains. Cancel returns to inactive.
 
 ### Phase 3: Completion Effects + Polish
 
-- [ ] `NSSound(named: "Glass")` with `NSSound(named: "Purr")` fallback in `TimerModel.finishCountdown()`
-- [ ] `UNUserNotificationCenter` notification on completion
-- [ ] Request notification permission on first timer start (not on launch)
-- [ ] `AppDelegate.startFlashSequence()` — 16 alternations at 0.125s (2 seconds total); `[weak self]`; cached image
-- [ ] Ensure `timerModel.cancel()` in flash sequence → auto-return to inactive
+- [x] `NSSound(named: "Glass")` with `NSSound(named: "Purr")` fallback in `TimerModel.finishCountdown()`
+- [x] `UNUserNotificationCenter` notification on completion
+- [x] Request notification permission on first timer start (not on launch)
+- [x] `AppDelegate.startFlashSequence()` — 16 alternations at 0.125s (2 seconds total); `[weak self]`; cached image
+- [x] Ensure `timerModel.cancel()` in flash sequence → auto-return to inactive
 - [ ] Fix NSPopover double-toggle (test `.transient` behavior manually; document workaround)
 - [ ] Adjust popover content size and padding
 - [ ] Test on both light and dark menubar
