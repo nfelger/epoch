@@ -4,7 +4,12 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "WebSearch(*)",
-      "Bash(/usr/bin/make -n deploy 2>&1)"
+      "Bash(/usr/bin/make -n deploy 2>&1)",
+      "Bash(/usr/bin/make lint:*)",
+      "Bash(/usr/bin/make format:*)",
+      "Bash(/usr/bin/make build:*)",
+      "Bash(/usr/bin/make build-debug:*)",
+      "Bash(/usr/bin/make test:*)"
     ]
   }
 }
