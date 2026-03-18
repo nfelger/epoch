@@ -18,15 +18,27 @@ macOS 14+
 
 Click the timer icon in the menu bar. Drag the arc clockwise to set a duration, then release to start. The countdown appears in the menu bar. Click again to open the dial and adjust or cancel.
 
-## Building
-
-Open `Epoch.xcodeproj` in Xcode 15+ and build the `Epoch` scheme.
-
-For distribution, enable a Developer ID code signing certificate and run:
+## Setup
 
 ```sh
-xcodebuild archive -scheme Epoch -archivePath Epoch.xcarchive
-xcrun notarytool submit Epoch.xcarchive --wait
+brew install xcodegen swiftlint swiftformat
+xcodegen generate
+```
+
+## Build
+
+```sh
+make build          # Release
+make build-debug    # Debug (faster)
+make deploy         # Build + install to /Applications
+```
+
+## Development
+
+```sh
+make lint    # SwiftLint (strict)
+make format  # SwiftFormat
+make test    # Unit tests
 ```
 
 ## Implementation

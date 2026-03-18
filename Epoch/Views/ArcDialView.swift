@@ -62,14 +62,14 @@ struct ArcDialView: View {
 
     private func handleDragChanged(_ value: DragGesture.Value, in size: CGSize) {
         let center = CGPoint(x: size.width / 2, y: size.height / 2)
-        let dx = value.location.x - center.x
-        let dy = value.location.y - center.y
-        var angle = atan2(dx, -dy)
+        let deltaX = value.location.x - center.x
+        let deltaY = value.location.y - center.y
+        var angle = atan2(deltaX, -deltaY)
         if angle < 0 { angle += 2 * .pi }
 
         if isDragging {
             var delta = angle - lastAngle
-            if delta > .pi  { delta -= 2 * .pi }
+            if delta > .pi { delta -= 2 * .pi }
             if delta < -.pi { delta += 2 * .pi }
             cumulativeAngle = max(0, cumulativeAngle + delta)
         } else {
@@ -99,6 +99,34 @@ struct ArcDialView: View {
 
     // MARK: - Canvas Drawing
 
+    private func drawTickMarks(
+        context: GraphicsContext, center: CGPoint, radius: CGFloat, lineWidth: CGFloat
+    ) {
+        for idx in 0 ..< 12 {
+            let tickAngle = Angle.degrees(-90 + Double(idx) * 30).radians
+            let innerR = radius - lineWidth / 2
+            let outerR = radius + lineWidth / 2
+            var tick = Path()
+            tick.move(to: CGPoint(x: center.x + innerR * CoreGraphics.cos(tickAngle),
+                                  y: center.y + innerR * CoreGraphics.sin(tickAngle)))
+            tick.addLine(to: CGPoint(x: center.x + outerR * CoreGraphics.cos(tickAngle),
+                                     y: center.y + outerR * CoreGraphics.sin(tickAngle)))
+            context.stroke(tick,
+                           with: .color(.secondary.opacity(0.4)),
+                           style: StrokeStyle(lineWidth: 1.5, lineCap: .butt))
+        }
+    }
+
+    private func knobPath(
+        center: CGPoint, radius: CGFloat, angleDeg: Double, diameter: CGFloat
+    ) -> Path {
+        let rad = Angle.degrees(angleDeg).radians
+        let point = CGPoint(x: center.x + radius * CoreGraphics.cos(rad),
+                            y: center.y + radius * CoreGraphics.sin(rad))
+        return Path(ellipseIn: CGRect(x: point.x - diameter / 2, y: point.y - diameter / 2,
+                                      width: diameter, height: diameter))
+    }
+
     private func drawArc(context: GraphicsContext, size: CGSize) {
         let center = CGPoint(x: size.width / 2, y: size.height / 2)
         let radius = min(size.width, size.height) / 2 - 20
@@ -114,39 +142,19 @@ struct ArcDialView: View {
                        with: .color(.secondary.opacity(0.2)),
                        style: strokeStyle)
 
-        // Tick marks on the track at 5-minute intervals
-        for i in 0..<12 {
-            let tickAngle = Angle.degrees(-90 + Double(i) * 30).radians
-            let innerR = radius - lineWidth / 2
-            let outerR = radius + lineWidth / 2
-            var tick = Path()
-            tick.move(to: CGPoint(x: center.x + innerR * CoreGraphics.cos(tickAngle),
-                                  y: center.y + innerR * CoreGraphics.sin(tickAngle)))
-            tick.addLine(to: CGPoint(x: center.x + outerR * CoreGraphics.cos(tickAngle),
-                                     y: center.y + outerR * CoreGraphics.sin(tickAngle)))
-            context.stroke(tick,
-                           with: .color(.secondary.opacity(0.4)),
-                           style: StrokeStyle(lineWidth: 1.5, lineCap: .butt))
-        }
+        drawTickMarks(context: context, center: center, radius: radius, lineWidth: lineWidth)
 
-        // Draw layered arc revolutions
         let totalAngle = arcAngle
         guard totalAngle > 0 else {
-            // Knob at 12 o'clock when no arc
-            let knobRad = Angle.degrees(-90).radians
-            let knobPt = CGPoint(x: center.x + radius * CoreGraphics.cos(knobRad),
-                                 y: center.y + radius * CoreGraphics.sin(knobRad))
-            let knob = Path(ellipseIn: CGRect(x: knobPt.x - 9, y: knobPt.y - 9,
-                                              width: 18, height: 18))
-            context.fill(knob, with: .color(.accentColor))
+            context.fill(knobPath(center: center, radius: radius, angleDeg: -90, diameter: 18),
+                         with: .color(.accentColor))
             return
         }
 
         let fullRevolutions = Int(totalAngle / (2 * .pi))
         let partialAngle = totalAngle.truncatingRemainder(dividingBy: 2 * .pi)
 
-        // Draw completed revolutions bottom-up (oldest/most-tinted first)
-        for rev in 0..<fullRevolutions {
+        for rev in 0 ..< fullRevolutions {
             let color = revolutionColor(revolution: rev)
             var fullArc = Path()
             fullArc.addArc(center: center, radius: radius,
@@ -154,7 +162,6 @@ struct ArcDialView: View {
             context.stroke(fullArc, with: .color(color), style: strokeStyle)
         }
 
-        // Draw partial arc on top
         if partialAngle > 0 {
             let sweepDeg = partialAngle / (2 * .pi) * 360
             let color = revolutionColor(revolution: fullRevolutions)
@@ -166,28 +173,20 @@ struct ArcDialView: View {
             context.stroke(arc, with: .color(color), style: strokeStyle)
         }
 
-        // Knob at arc end
-        let endSweepDeg = (partialAngle > 0)
-            ? partialAngle / (2 * .pi) * 360
-            : 360 // full revolution means knob at 12 o'clock
-        let knobAngleRad = Angle.degrees(-90 + endSweepDeg).radians
-        let knobCenter = CGPoint(x: center.x + radius * CoreGraphics.cos(knobAngleRad),
-                                 y: center.y + radius * CoreGraphics.sin(knobAngleRad))
+        let endSweepDeg = partialAngle > 0 ? partialAngle / (2 * .pi) * 360 : 360
         let knobSize: CGFloat = isDragging ? 22 : 18
-        let topColor = revolutionColor(revolution: fullRevolutions)
-        let knob = Path(ellipseIn: CGRect(x: knobCenter.x - knobSize / 2,
-                                          y: knobCenter.y - knobSize / 2,
-                                          width: knobSize, height: knobSize))
-        context.fill(knob, with: .color(topColor))
+        context.fill(knobPath(center: center, radius: radius,
+                              angleDeg: -90 + endSweepDeg, diameter: knobSize),
+                     with: .color(revolutionColor(revolution: fullRevolutions)))
     }
 
     /// Color for each revolution layer: accent → red → deep purple over 4 hours
     private func revolutionColor(revolution: Int) -> Color {
         switch revolution {
-        case 0: return .accentColor
-        case 1: return Color(red: 0.85, green: 0.25, blue: 0.3)
-        case 2: return Color(red: 0.7, green: 0.15, blue: 0.5)
-        default: return Color(red: 0.45, green: 0.1, blue: 0.6) // deep purple at 4h+
+        case 0: .accentColor
+        case 1: Color(red: 0.85, green: 0.25, blue: 0.3)
+        case 2: Color(red: 0.7, green: 0.15, blue: 0.5)
+        default: Color(red: 0.45, green: 0.1, blue: 0.6) // deep purple at 4h+
         }
     }
 
@@ -201,7 +200,7 @@ struct ArcDialView: View {
         let totalSec = Int(effectiveRemaining) % 60
 
         VStack(spacing: 2) {
-            if model.state == .inactive && cumulativeAngle == 0 && !isDragging {
+            if model.state == .inactive, cumulativeAngle == 0, !isDragging {
                 Text("Drag to set")
                     .font(.caption)
                     .foregroundStyle(.secondary)

@@ -6,6 +6,19 @@ options:
   xcodeVersion: "15"
 
 targets:
+  EpochTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: EpochTests
+    dependencies:
+      - target: Epoch
+    settings:
+      base:
+        SWIFT_VERSION: "5.9"
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
+        GENERATE_INFOPLIST_FILE: YES
+
   Epoch:
     type: application
     platform: macOS

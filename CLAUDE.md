@@ -9,11 +9,15 @@ Epoch is a native macOS menubar countdown timer built with Swift/SwiftUI. It has
 ## Build Commands
 
 ```sh
-make build     # Release build via xcodebuild
-make deploy    # Build + copy to /Applications
+make build        # Release build via xcodebuild
+make build-debug  # Debug build (faster, no optimizations)
+make deploy       # Build + copy to /Applications
+make lint         # SwiftLint (strict mode)
+make format       # SwiftFormat
+make test         # Unit tests via xcodebuild
 ```
 
-No tests exist yet. No linter is configured.
+Requires: `brew install swiftlint swiftformat xcodegen`
 
 ## Changelog
 

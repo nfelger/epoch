@@ -1,0 +1,4 @@
+--swiftversion 5.9
+--indent 4
+--stripunusedargs closure-only
+--allman false

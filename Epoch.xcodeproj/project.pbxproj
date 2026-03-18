@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1A22712BD724CC43AD365182 /* TimerModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A794E59787C01DEA69C8FECD /* TimerModelTests.swift */; };
 		6E059268F11816212AEF9601 /* TimerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 133985A2DF2BC45A07A2895D /* TimerModel.swift */; };
 		7CF1DC062C1230004AC2E4BF /* ArcDialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2A32619903F4DF0FD75BD94 /* ArcDialView.swift */; };
 		A1AC70DA1BA042DA517381A8 /* EpochApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 216E577A653D7157B729B965 /* EpochApp.swift */; };
@@ -14,21 +15,42 @@
 		AEC90E786217703CD1C58E3F /* PopoverContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77B984619E0F1C90CB5D7599 /* PopoverContentView.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		3E7309968E116DF22F271B50 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 19183FDF438C2B22DE2F0712 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 321D80C1F625DC51E2E52E6A;
+			remoteInfo = Epoch;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		04E93B27C37447F96894ADA9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		133985A2DF2BC45A07A2895D /* TimerModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerModel.swift; sourceTree = "<group>"; };
 		216E577A653D7157B729B965 /* EpochApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpochApp.swift; sourceTree = "<group>"; };
+		3020D4D5DD05374CED93550D /* EpochTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EpochTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5AE3757F25C9166731970C1E /* Epoch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Epoch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		77B984619E0F1C90CB5D7599 /* PopoverContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverContentView.swift; sourceTree = "<group>"; };
+		A794E59787C01DEA69C8FECD /* TimerModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerModelTests.swift; sourceTree = "<group>"; };
 		BDD2FC56B5897E46ECBC42E7 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		F2A32619903F4DF0FD75BD94 /* ArcDialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArcDialView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
+		092B94EA59E53197BE8893AF /* EpochTests */ = {
+			isa = PBXGroup;
+			children = (
+				A794E59787C01DEA69C8FECD /* TimerModelTests.swift */,
+			);
+			path = EpochTests;
+			sourceTree = "<group>";
+		};
 		295D763383AB143064D07E2D = {
 			isa = PBXGroup;
 			children = (
 				DA97ECD06DCAE228E8A4483A /* Epoch */,
+				092B94EA59E53197BE8893AF /* EpochTests */,
 				F51E16B66FB8D2EE70F421B9 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -58,6 +80,7 @@
 			isa = PBXGroup;
 			children = (
 				5AE3757F25C9166731970C1E /* Epoch.app */,
+				3020D4D5DD05374CED93550D /* EpochTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -81,6 +104,24 @@
 			productName = Epoch;
 			productReference = 5AE3757F25C9166731970C1E /* Epoch.app */;
 			productType = "com.apple.product-type.application";
+		};
+		48076D5DA08A404167EC49F3 /* EpochTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4C03172A092A528B6DD74780 /* Build configuration list for PBXNativeTarget "EpochTests" */;
+			buildPhases = (
+				F5759CE06529A51471082D38 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DF3E66747E23201B3C4EC221 /* PBXTargetDependency */,
+			);
+			name = EpochTests;
+			packageProductDependencies = (
+			);
+			productName = EpochTests;
+			productReference = 3020D4D5DD05374CED93550D /* EpochTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -108,6 +149,7 @@
 			projectRoot = "";
 			targets = (
 				321D80C1F625DC51E2E52E6A /* Epoch */,
+				48076D5DA08A404167EC49F3 /* EpochTests */,
 			);
 		};
 /* End PBXProject section */
@@ -125,9 +167,43 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F5759CE06529A51471082D38 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A22712BD724CC43AD365182 /* TimerModelTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		DF3E66747E23201B3C4EC221 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 321D80C1F625DC51E2E52E6A /* Epoch */;
+			targetProxy = 3E7309968E116DF22F271B50 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		092C1D8D3BB5F0F5D849284C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.9;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Epoch.app/Contents/MacOS/Epoch";
+			};
+			name = Release;
+		};
 		30975DA52EAE6E85776ACF77 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -229,6 +305,24 @@
 			};
 			name = Release;
 		};
+		DCB721A199C4077C5FF68B73 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.9;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Epoch.app/Contents/MacOS/Epoch";
+			};
+			name = Debug;
+		};
 		E80919AF83E719728AC7BEEE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -293,6 +387,15 @@
 			buildConfigurations = (
 				30975DA52EAE6E85776ACF77 /* Debug */,
 				A24311B0018E4972AFA84814 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		4C03172A092A528B6DD74780 /* Build configuration list for PBXNativeTarget "EpochTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DCB721A199C4077C5FF68B73 /* Debug */,
+				092C1D8D3BB5F0F5D849284C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

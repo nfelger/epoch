@@ -33,9 +33,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         popover.behavior = .transient
         popover.delegate = self
         let contentView = PopoverContentView(model: timerModel)
-        let vc = NSViewController()
-        vc.view = FirstMouseHostingView(rootView: contentView)
-        popover.contentViewController = vc
+        let controller = NSViewController()
+        controller.view = FirstMouseHostingView(rootView: contentView)
+        popover.contentViewController = controller
 
         observeModel()
     }
@@ -73,13 +73,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             statusItem.button?.title = ""
         case .running:
             let total = Int(timerModel.remaining)
-            let h = total / 3600
-            let m = (total % 3600) / 60
-            let s = total % 60
-            let label = h > 0
-                ? String(format: "%d:%02d:%02d", h, m, s)
-                : String(format: "%d:%02d", m, s)
-            statusItem.length = h > 0 ? 72 : 56
+            let hrs = total / 3600
+            let min = (total % 3600) / 60
+            let sec = total % 60
+            let label = hrs > 0
+                ? String(format: "%d:%02d:%02d", hrs, min, sec)
+                : String(format: "%d:%02d", min, sec)
+            statusItem.length = hrs > 0 ? 72 : 56
             statusItem.button?.image = nil
             statusItem.button?.title = " \(label)"
         case .finished:
@@ -93,7 +93,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let previousState = lastObservedState
         lastObservedState = currentState
 
-        if currentState == .running && previousState != .running {
+        if currentState == .running, previousState != .running {
             requestNotificationPermissionIfNeeded()
             if popover.isShown {
                 DispatchQueue.main.async { [weak self] in
@@ -101,7 +101,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 }
             }
         }
-        if currentState == .finished && previousState != .finished {
+        if currentState == .finished, previousState != .finished {
             playCompletionSound()
             scheduleCompletionNotification()
             startFlashSequence()
@@ -122,7 +122,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Completion Effects
 
     private func playCompletionSound() {
-        let burnComplete = NSSound(contentsOfFile: "/System/Library/Components/CoreAudio.component/Contents/SharedSupport/SystemSounds/system/burn complete.aif", byReference: true)
+        let soundPath = "/System/Library/Components/CoreAudio.component" +
+            "/Contents/SharedSupport/SystemSounds/system/burn complete.aif"
+        let burnComplete = NSSound(contentsOfFile: soundPath, byReference: true)
         if let sound = burnComplete ?? NSSound(named: "Glass") ?? NSSound(named: "Purr") {
             sound.play()
         } else {
@@ -144,9 +146,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func startFlashSequence() {
         flashTimer?.invalidate()
         flashCount = 0
-        flashTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { [weak self] t in
+        flashTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { [weak self] timer in
             MainActor.assumeIsolated {
-                guard let self else { t.invalidate(); return }
+                guard let self else { timer.invalidate(); return }
                 self.flashCount += 1
                 let inverted = self.flashCount.isMultiple(of: 2)
                 let title = NSMutableAttributedString(string: " 0:00")
@@ -160,7 +162,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 title.addAttribute(.font, value: NSFont.menuBarFont(ofSize: 0), range: range)
                 self.statusItem.button?.attributedTitle = title
                 if self.flashCount >= 10 {
-                    t.invalidate()
+                    timer.invalidate()
                     self.flashTimer = nil
                     self.timerModel.cancel()
                 }
@@ -187,5 +189,7 @@ extension AppDelegate: @preconcurrency UNUserNotificationCenterDelegate {
 
 /// NSHostingView subclass that allows immediate drag interaction without click-to-focus.
 class FirstMouseHostingView<Content: View>: NSHostingView<Content> {
-    override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        true
+    }
 }

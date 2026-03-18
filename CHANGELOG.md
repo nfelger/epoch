@@ -15,3 +15,6 @@
 - Hour display in menubar countdown for long timers
 - Immediate drag interaction via `FirstMouseHostingView` (no focus required)
 - XcodeGen project config and Makefile (`make build`, `make deploy`)
+- `make build-debug` for faster debug builds
+- `make lint` (SwiftLint) and `make format` (SwiftFormat) with config files
+- `make test` with unit tests for TimerModel state machine
