@@ -1,0 +1,17 @@
+# macOS
+.DS_Store
+._*
+
+# Xcode user data (window state, breakpoints, scheme ordering)
+xcuserdata/
+
+# Build artifacts — release builds via Makefile, not via git
+DerivedData/
+build/
+
+# Debug symbols
+*.dSYM
+*.dSYM.zip
+
+# Swift Package Manager
+.build/
