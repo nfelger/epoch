@@ -4,9 +4,9 @@ struct PopoverContentView: View {
     @Bindable var model: TimerModel
 
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 12) {
             ArcDialView(model: model)
-                .frame(width: 200, height: 200)
+                .frame(width: 190, height: 190)
 
             if model.state == .running {
                 Button("Cancel") {
@@ -16,7 +16,9 @@ struct PopoverContentView: View {
                 .controlSize(.small)
             }
         }
-        .padding(20)
-        .frame(width: 240)
+        .padding(.horizontal, 20)
+        .padding(.top, 16)
+        .padding(.bottom, 16)
+        .frame(width: 230)
     }
 }

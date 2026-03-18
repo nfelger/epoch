@@ -1,6 +1,4 @@
 import Foundation
-import AppKit
-import UserNotifications
 
 enum TimerState { case inactive, running, finished }
 
@@ -50,7 +48,7 @@ final class TimerModel {
     private func tick() {
         guard state == .running, let endDate else { return }
         remaining = max(0, endDate.timeIntervalSinceNow)
-        if remaining == 0 {
+        if remaining <= 0 {
             countdownTimer?.invalidate()
             countdownTimer = nil
             finishCountdown()
@@ -59,20 +57,5 @@ final class TimerModel {
 
     private func finishCountdown() {
         state = .finished
-        if let sound = NSSound(named: "Glass") ?? NSSound(named: "Purr") {
-            sound.play()
-        } else {
-            NSSound.beep()
-        }
-        scheduleNotification()
-    }
-
-    private func scheduleNotification() {
-        let content = UNMutableNotificationContent()
-        content.title = "Timer finished"
-        content.sound = .default
-        UNUserNotificationCenter.current().add(
-            UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
-        )
     }
 }
