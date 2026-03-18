@@ -1,0 +1,6 @@
+- [ ] Commit changes
+- [ ] Add changelog
+- [ ] Add icon to app bundle
+- [ ] Add right-click menu with quit action
+- [ ] Allow typing durations by clicking into the center label
+- [ ] Brainstorm: adding a text prompt to describe what the current task / focus is (so I don't forget)
