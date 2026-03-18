@@ -1,5 +1,5 @@
-import XCTest
 @testable import Epoch
+import XCTest
 
 @MainActor
 final class TimerModelTests: XCTestCase {
@@ -73,6 +73,15 @@ final class TimerModelTests: XCTestCase {
         model.adjustRemaining(to: 100)
         XCTAssertEqual(model.state, .inactive)
         XCTAssertEqual(model.remaining, 0)
+    }
+
+    func testStartWhileAlreadyRunningResetsTimer() {
+        model.start(duration: 300)
+        let firstEndDate = model.endDate
+        model.start(duration: 600)
+        XCTAssertEqual(model.state, .running)
+        XCTAssertEqual(model.totalDuration, 600)
+        XCTAssertNotEqual(model.endDate, firstEndDate)
     }
 
     func testCancelFromInactiveIsNoOp() {

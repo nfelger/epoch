@@ -19,6 +19,8 @@ make test         # Unit tests via xcodebuild
 
 Requires: `brew install swiftlint swiftformat xcodegen`
 
+Run `make lint` and `make test` before committing. Run `make format` to auto-fix style issues.
+
 ## Changelog
 
 - Maintain `CHANGELOG.md` following [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Common Changelog](https://github.com/vweevers/common-changelog) conventions. See `docs/solutions/how-to/changelog-best-practices.md` for full guidelines.

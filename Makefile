@@ -10,10 +10,10 @@ build-debug:
 	xcodebuild -project Epoch.xcodeproj -scheme Epoch -configuration Debug build
 
 lint:
-	swiftlint lint --strict Epoch/
+	swiftlint lint --strict Epoch/ EpochTests/
 
 format:
-	swiftformat Epoch/
+	swiftformat Epoch/ EpochTests/
 
 test:
 	xcodebuild test -project Epoch.xcodeproj -scheme Epoch -destination 'platform=macOS'

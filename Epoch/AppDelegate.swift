@@ -74,11 +74,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         case .running:
             let total = Int(timerModel.remaining)
             let hrs = total / 3600
-            let min = (total % 3600) / 60
-            let sec = total % 60
+            let mins = (total % 3600) / 60
+            let secs = total % 60
             let label = hrs > 0
-                ? String(format: "%d:%02d:%02d", hrs, min, sec)
-                : String(format: "%d:%02d", min, sec)
+                ? String(format: "%d:%02d:%02d", hrs, mins, secs)
+                : String(format: "%d:%02d", mins, secs)
             statusItem.length = hrs > 0 ? 72 : 56
             statusItem.button?.image = nil
             statusItem.button?.title = " \(label)"
