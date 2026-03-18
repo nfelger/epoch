@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "WebSearch(*)",
+      "Bash(/usr/bin/make -n deploy 2>&1)"
     ]
   }
 }
