@@ -4,6 +4,7 @@
 
 ### Added
 
+- Right-click context menu on menubar icon with "About Epoch" and "Quit Epoch" actions
 - App bundle icon: monochrome arc/dial design on dark background, visible in Finder, Spotlight, and Activity Monitor
 - `make icon` target to regenerate icon PNGs from the Swift source script
 - Menubar countdown timer with arc dial UI and NSPopover

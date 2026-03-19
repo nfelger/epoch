@@ -14,6 +14,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var lastPopoverCloseTime: Date = .distantPast
     private let timerIcon = NSImage(systemSymbolName: "timer", accessibilityDescription: "Epoch")!
 
+    private lazy var contextMenu: NSMenu = {
+        let menu = NSMenu()
+        menu.addItem(NSMenuItem(title: "About Epoch", action: #selector(showAbout), keyEquivalent: ""))
+        menu.addItem(.separator())
+        let quit = NSMenuItem(
+            title: "Quit Epoch",
+            action: #selector(NSApplication.terminate(_:)),
+            keyEquivalent: "q"
+        )
+        menu.addItem(quit)
+        return menu
+    }()
+
     func applicationWillFinishLaunching(_ notification: Notification) {
         UNUserNotificationCenter.current().delegate = self
     }
@@ -26,6 +39,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             button.image = timerIcon
             button.action = #selector(togglePopover)
             button.target = self
+            button.sendAction(on: [.leftMouseUp, .rightMouseUp])
         }
 
         popover = NSPopover()
@@ -40,8 +54,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         observeModel()
     }
 
+    @objc func showAbout() {
+        NSApp.orderFrontStandardAboutPanel(nil)
+    }
+
     @objc func togglePopover() {
         guard let button = statusItem.button else { return }
+        if NSApp.currentEvent?.type == .rightMouseUp {
+            contextMenu.popUp(positioning: nil, at: NSPoint(x: 0, y: button.bounds.height), in: button)
+            return
+        }
         if popover.isShown {
             popover.performClose(nil)
         } else {
