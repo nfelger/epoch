@@ -1,4 +1,4 @@
-- [ ] Add icon to app bundle
+- [ ] Design iteration: slightly thicker ticks. Less saturated active color. Try some transparency so the ticks still show when dragging over them
 - [ ] Add right-click menu with quit action
 - [ ] Cut a release and publish to GitHub and add `make release` command
 - [ ] Allow typing durations by clicking into the center label
