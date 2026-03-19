@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		191C3106754C12F0BAB03DD3 /* Epoch.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5AE60F7F4810F9FA45EED754 /* Epoch.xcassets */; };
 		1A22712BD724CC43AD365182 /* TimerModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A794E59787C01DEA69C8FECD /* TimerModelTests.swift */; };
 		6E059268F11816212AEF9601 /* TimerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 133985A2DF2BC45A07A2895D /* TimerModel.swift */; };
 		7CF1DC062C1230004AC2E4BF /* ArcDialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2A32619903F4DF0FD75BD94 /* ArcDialView.swift */; };
@@ -31,6 +32,7 @@
 		216E577A653D7157B729B965 /* EpochApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpochApp.swift; sourceTree = "<group>"; };
 		3020D4D5DD05374CED93550D /* EpochTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EpochTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5AE3757F25C9166731970C1E /* Epoch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Epoch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5AE60F7F4810F9FA45EED754 /* Epoch.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Epoch.xcassets; sourceTree = "<group>"; };
 		77B984619E0F1C90CB5D7599 /* PopoverContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverContentView.swift; sourceTree = "<group>"; };
 		A794E59787C01DEA69C8FECD /* TimerModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerModelTests.swift; sourceTree = "<group>"; };
 		BDD2FC56B5897E46ECBC42E7 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -46,11 +48,21 @@
 			path = EpochTests;
 			sourceTree = "<group>";
 		};
+		1B1E7ECE90CEFEFDC3F1A229 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				5AE60F7F4810F9FA45EED754 /* Epoch.xcassets */,
+			);
+			name = Resources;
+			path = Epoch/Resources;
+			sourceTree = "<group>";
+		};
 		295D763383AB143064D07E2D = {
 			isa = PBXGroup;
 			children = (
 				DA97ECD06DCAE228E8A4483A /* Epoch */,
 				092B94EA59E53197BE8893AF /* EpochTests */,
+				1B1E7ECE90CEFEFDC3F1A229 /* Resources */,
 				F51E16B66FB8D2EE70F421B9 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -93,6 +105,7 @@
 			buildConfigurationList = 2C5832CD5DFD79CFA47AA800 /* Build configuration list for PBXNativeTarget "Epoch" */;
 			buildPhases = (
 				DD77A785A84206882B17D7D6 /* Sources */,
+				6AC4C00B1B8CD54BBF617767 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -153,6 +166,17 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		6AC4C00B1B8CD54BBF617767 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				191C3106754C12F0BAB03DD3 /* Epoch.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		DD77A785A84206882B17D7D6 /* Sources */ = {

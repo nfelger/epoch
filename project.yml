@@ -14,10 +14,7 @@ targets:
       - path: Epoch
         excludes:
           - Resources
-    resources:
-      - path: Epoch/Resources
-        excludes:
-          - "*.entitlements"
+      - path: Epoch/Resources/Epoch.xcassets
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: de.nfelger.epoch
@@ -25,6 +22,7 @@ targets:
         ENABLE_HARDENED_RUNTIME: YES
         CODE_SIGN_ENTITLEMENTS: Epoch/Resources/Epoch.entitlements
         MACOSX_DEPLOYMENT_TARGET: "14.0"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     info:
       path: Epoch/Info.plist
       properties:
