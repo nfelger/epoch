@@ -6,7 +6,8 @@
       "WebSearch(*)",
       "Bash(make:*)",
       "Bash(xcodegen generate:*)",
-      "Bash(killall Finder)"
+      "Bash(killall Finder)",
+      "Bash(git status:*)"
     ]
   }
 }
