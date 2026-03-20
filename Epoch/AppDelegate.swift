@@ -112,16 +112,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         let panelWidth = panel.frame.width
         let panelHeight = panel.frame.height
-        var x = buttonRectOnScreen.midX - panelWidth / 2
-        let y = buttonRectOnScreen.minY - panelHeight - 6
+        var panelX = buttonRectOnScreen.midX - panelWidth / 2
+        let panelY = buttonRectOnScreen.minY - panelHeight - 6
 
         if let screen = buttonWindow.screen ?? NSScreen.main {
-            x = max(screen.visibleFrame.minX, min(x, screen.visibleFrame.maxX - panelWidth))
+            panelX = max(screen.visibleFrame.minX, min(panelX, screen.visibleFrame.maxX - panelWidth))
         }
 
         // Freeze width to prevent the countdown text from resizing the button while the panel is open
         statusItem.length = 72
-        panel.setFrameOrigin(NSPoint(x: x, y: y))
+        panel.setFrameOrigin(NSPoint(x: panelX, y: panelY))
         panel.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
 
