@@ -5,13 +5,13 @@ import UserNotifications
 @MainActor
 class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem!
-    var popover: NSPopover!
+    var panel: NSPanel!
     let timerModel = TimerModel()
 
     private var flashTimer: Timer?
-    private var flashCount = 0
     private var lastObservedState: TimerState = .inactive
-    private var lastPopoverCloseTime: Date = .distantPast
+    private var lastPanelCloseTime: Date = .distantPast
+    private var eventMonitor: Any?
     private let timerIcon = NSImage(systemSymbolName: "timer", accessibilityDescription: "Epoch")!
 
     private func buildContextMenu() -> NSMenu {
@@ -31,13 +31,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc func cancelTimer() {
-        flashTimer?.invalidate()
-        flashTimer = nil
+        stopFlashAnimation()
         timerModel.cancel()
     }
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         UNUserNotificationCenter.current().delegate = self
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        if let monitor = eventMonitor {
+            NSEvent.removeMonitor(monitor)
+        }
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -46,19 +51,36 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         if let button = statusItem.button {
             button.image = timerIcon
-            button.action = #selector(togglePopover)
+            button.action = #selector(togglePanel)
             button.target = self
             button.sendAction(on: [.leftMouseUp, .rightMouseUp])
         }
 
-        popover = NSPopover()
-        popover.contentSize = NSSize(width: 174, height: 174)
-        popover.behavior = .transient
-        popover.delegate = self
-        let contentView = PopoverContentView(model: timerModel)
-        let controller = NSViewController()
-        controller.view = FirstMouseHostingView(rootView: contentView)
-        popover.contentViewController = controller
+        let panelSize = NSSize(width: 174, height: 174)
+        panel = NSPanel(
+            contentRect: NSRect(origin: .zero, size: panelSize),
+            styleMask: [.borderless, .nonactivatingPanel],
+            backing: .buffered,
+            defer: false
+        )
+        panel.backgroundColor = .clear
+        panel.isOpaque = false
+        panel.hasShadow = true
+        panel.level = .popUpMenu
+
+        let visualEffect = NSVisualEffectView(frame: NSRect(origin: .zero, size: panelSize))
+        visualEffect.material = .popover
+        visualEffect.blendingMode = .behindWindow
+        visualEffect.state = .active
+        visualEffect.wantsLayer = true
+        visualEffect.layer?.cornerRadius = 12
+        visualEffect.layer?.masksToBounds = true
+
+        let hostingView = FirstMouseHostingView(rootView: PopoverContentView(model: timerModel))
+        hostingView.frame = NSRect(origin: .zero, size: panelSize)
+        hostingView.autoresizingMask = [.width, .height]
+        visualEffect.addSubview(hostingView)
+        panel.contentView = visualEffect
 
         observeModel()
     }
@@ -68,21 +90,54 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.orderFrontStandardAboutPanel(nil)
     }
 
-    @objc func togglePopover() {
+    @objc func togglePanel() {
         guard let button = statusItem.button else { return }
         if NSApp.currentEvent?.type == .rightMouseUp {
             buildContextMenu().popUp(positioning: nil, at: NSPoint(x: 0, y: button.bounds.height), in: button)
             return
         }
-        if popover.isShown {
-            popover.performClose(nil)
+        if panel.isVisible {
+            hidePanel()
         } else {
-            // Suppress re-open if the popover just closed via .transient dismiss
-            guard Date.now.timeIntervalSince(lastPopoverCloseTime) > 0.2 else { return }
-            statusItem.length = 72
-            popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
-            NSApp.activate(ignoringOtherApps: true)
+            guard Date.now.timeIntervalSince(lastPanelCloseTime) > 0.2 else { return }
+            showPanel()
         }
+    }
+
+    private func showPanel() {
+        guard let button = statusItem.button, let buttonWindow = button.window else { return }
+
+        let buttonRectInWindow = button.convert(button.bounds, to: nil)
+        let buttonRectOnScreen = buttonWindow.convertToScreen(buttonRectInWindow)
+
+        let panelWidth = panel.frame.width
+        let panelHeight = panel.frame.height
+        var x = buttonRectOnScreen.midX - panelWidth / 2
+        let y = buttonRectOnScreen.minY - panelHeight - 6
+
+        if let screen = buttonWindow.screen ?? NSScreen.main {
+            x = max(screen.visibleFrame.minX, min(x, screen.visibleFrame.maxX - panelWidth))
+        }
+
+        // Freeze width to prevent the countdown text from resizing the button while the panel is open
+        statusItem.length = 72
+        panel.setFrameOrigin(NSPoint(x: x, y: y))
+        panel.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+
+        eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
+            self?.hidePanel()
+        }
+    }
+
+    private func hidePanel() {
+        panel.orderOut(nil)
+        if let monitor = eventMonitor {
+            NSEvent.removeMonitor(monitor)
+            eventMonitor = nil
+        }
+        lastPanelCloseTime = Date.now
+        syncStatusItemLength()
     }
 
     // MARK: - Model Observation
@@ -99,7 +154,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func updateStatusItem() {
-        let frozen = popover.isShown
+        let frozen = panel.isVisible
         switch timerModel.state {
         case .inactive:
             if !frozen { statusItem.length = NSStatusItem.squareLength }
@@ -136,8 +191,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             startFlashSequence()
         }
         if currentState == .inactive, previousState == .finished {
-            flashTimer?.invalidate()
-            flashTimer = nil
+            stopFlashAnimation()
+        }
+    }
+
+    private func syncStatusItemLength() {
+        if timerModel.state == .inactive {
+            statusItem.length = NSStatusItem.squareLength
+        } else {
+            statusItem.length = NSStatusItem.variableLength
         }
     }
 
@@ -177,24 +239,30 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Flash Sequence
 
     private func startFlashSequence() {
-        flashTimer?.invalidate()
-        flashCount = 0
-        flashTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { [weak self] timer in
+        stopFlashAnimation()
+
+        if !panel.isVisible { statusItem.length = NSStatusItem.squareLength }
+        statusItem.button?.title = ""
+
+        let config = NSImage.SymbolConfiguration.preferringMulticolor()
+        let steps = 6
+        let interval = 0.175
+        let totalTicks = Int(8.0 / interval)
+        var tick = 0
+
+        flashTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] timer in
             MainActor.assumeIsolated {
                 guard let self else { timer.invalidate(); return }
-                self.flashCount += 1
-                let inverted = self.flashCount.isMultiple(of: 2)
-                let title = NSMutableAttributedString(string: " 0:00")
-                let range = NSRange(location: 0, length: title.length)
-                if inverted {
-                    title.addAttribute(.foregroundColor, value: NSColor.white, range: range)
-                    title.addAttribute(.backgroundColor, value: NSColor.systemRed, range: range)
-                } else {
-                    title.addAttribute(.foregroundColor, value: NSColor.systemRed, range: range)
-                }
-                title.addAttribute(.font, value: NSFont.menuBarFont(ofSize: 0), range: range)
-                self.statusItem.button?.attributedTitle = title
-                if self.flashCount >= 10 {
+                let variableValue = Double(tick % steps) / Double(steps - 1)
+                let image = NSImage(
+                    systemSymbolName: "rainbow",
+                    variableValue: variableValue,
+                    accessibilityDescription: nil
+                )?.withSymbolConfiguration(config)
+                image?.isTemplate = false
+                self.statusItem.button?.image = image
+                tick += 1
+                if tick >= totalTicks {
                     timer.invalidate()
                     self.flashTimer = nil
                     self.timerModel.cancel()
@@ -202,20 +270,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
     }
-}
 
-extension AppDelegate: NSPopoverDelegate {
-    func popoverDidClose(_ notification: Notification) {
-        lastPopoverCloseTime = Date.now
-        syncStatusItemLength()
-    }
-
-    private func syncStatusItemLength() {
-        if timerModel.state == .inactive {
-            statusItem.length = NSStatusItem.squareLength
-        } else {
-            statusItem.length = NSStatusItem.variableLength
-        }
+    private func stopFlashAnimation() {
+        flashTimer?.invalidate()
+        flashTimer = nil
     }
 }
 

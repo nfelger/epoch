@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Replaced `NSPopover` with a borderless `NSPanel` (vibrancy + rounded corners) so the arc dial appears as a tipless panel flush with the menu bar, matching standard system menu appearance
+- Flash animation on timer finish replaced: cycles a multicolor rainbow SF Symbol through `variableValue` steps on a timer, sweeping arcs from inner to outer
+
 ### Added
 
 - Compact square popover with refined arc dial: semi-transparent arc (70% opacity) so tick marks show through, flat cap at 12 o'clock, white knob, and muted color palette
