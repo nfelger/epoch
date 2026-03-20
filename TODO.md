@@ -1,3 +1,2 @@
-- [ ] Cut a release and publish to GitHub and add `make release` command
 - [ ] Allow typing durations by clicking into the center label
 - [ ] Brainstorm: adding a text prompt to describe what the current task / focus is (so I don't forget)

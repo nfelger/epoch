@@ -1,6 +1,6 @@
 ## Project
 
-Epoch is a native macOS menubar countdown timer built with Swift/SwiftUI. It has no Dock icon and no main window — it lives entirely in the menu bar with an NSPopover for the arc dial UI.
+Epoch is a native macOS menubar countdown timer built with Swift/SwiftUI. It has no Dock icon and no main window — it lives entirely in the menu bar with an NSPanel for the arc dial UI.
 
 - **Language:** Swift 5.9, macOS 14+ deployment target
 - **Dependencies:** None (system frameworks only: AppKit, SwiftUI, UserNotifications)
@@ -15,6 +15,7 @@ make deploy       # Build + copy to /Applications
 make lint         # SwiftLint (strict mode)
 make format       # SwiftFormat
 make test         # Unit tests via xcodebuild
+make release VERSION=x.y.z  # Full release: bump, changelog, tag, build, GitHub release
 ```
 
 Requires: `brew install swiftlint swiftformat xcodegen`

@@ -7,7 +7,8 @@
       "Bash(make:*)",
       "Bash(xcodegen generate:*)",
       "Bash(killall Finder)",
-      "Bash(git status:*)"
+      "Bash(git status:*)",
+      "Bash(xcodegen)"
     ]
   }
 }

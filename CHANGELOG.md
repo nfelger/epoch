@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- `make release VERSION=x.y.z` command for fully automated releases (version bump, changelog stamp, lint, test, build, zip, GitHub release)
+
 ### Changed
 
 - Replaced `NSPopover` with a borderless `NSPanel` (vibrancy + rounded corners) so the arc dial appears as a tipless panel flush with the menu bar, matching standard system menu appearance
