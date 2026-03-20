@@ -4,6 +4,11 @@
 
 ### Added
 
+- Compact square popover with refined arc dial: semi-transparent arc (70% opacity) so tick marks show through, flat cap at 12 o'clock, white knob, and muted color palette
+- Cancel timer action in the right-click context menu
+- Popover stays open after timer starts for immediate adjustments
+- Stable popover positioning (status bar width frozen while popover is open)
+- Arc dial can be dragged to start a new timer during the flash-finished sequence
 - Right-click context menu on menubar icon with "About Epoch" and "Quit Epoch" actions
 - App bundle icon: monochrome arc/dial design on dark background, visible in Finder, Spotlight, and Activity Monitor
 - `make icon` target to regenerate icon PNGs from the Swift source script

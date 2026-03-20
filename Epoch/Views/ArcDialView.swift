@@ -74,7 +74,9 @@ struct ArcDialView: View {
             cumulativeAngle = max(0, cumulativeAngle + delta)
         } else {
             isDragging = true
-            if model.state == .running {
+            if model.state == .finished {
+                model.cancel()
+            } else if model.state == .running {
                 cumulativeAngle = (model.remaining / 3600) * 2 * .pi
             }
         }
@@ -104,8 +106,8 @@ struct ArcDialView: View {
     ) {
         for idx in 0 ..< 12 {
             let tickAngle = Angle.degrees(-90 + Double(idx) * 30).radians
-            let innerR = radius - lineWidth / 2
-            let outerR = radius + lineWidth / 2
+            let innerR = radius - lineWidth / 2 - 1
+            let outerR = radius + lineWidth / 2 + 1
             var tick = Path()
             tick.move(to: CGPoint(x: center.x + innerR * CoreGraphics.cos(tickAngle),
                                   y: center.y + innerR * CoreGraphics.sin(tickAngle)))
@@ -113,7 +115,7 @@ struct ArcDialView: View {
                                      y: center.y + outerR * CoreGraphics.sin(tickAngle)))
             context.stroke(tick,
                            with: .color(.secondary.opacity(0.4)),
-                           style: StrokeStyle(lineWidth: 1.5, lineCap: .butt))
+                           style: StrokeStyle(lineWidth: 2, lineCap: .butt))
         }
     }
 
@@ -129,10 +131,10 @@ struct ArcDialView: View {
 
     private func drawArc(context: GraphicsContext, size: CGSize) {
         let center = CGPoint(x: size.width / 2, y: size.height / 2)
-        let radius = min(size.width, size.height) / 2 - 20
+        let radius = min(size.width, size.height) / 2 - 15
         let startAngle = Angle.degrees(-90)
-        let lineWidth: CGFloat = 14
-        let strokeStyle = StrokeStyle(lineWidth: lineWidth, lineCap: .round)
+        let lineWidth: CGFloat = 10
+        let strokeStyle = StrokeStyle(lineWidth: lineWidth, lineCap: .butt)
 
         // Track ring
         var track = Path()
@@ -146,8 +148,8 @@ struct ArcDialView: View {
 
         let totalAngle = arcAngle
         guard totalAngle > 0 else {
-            context.fill(knobPath(center: center, radius: radius, angleDeg: -90, diameter: 18),
-                         with: .color(.accentColor))
+            context.fill(knobPath(center: center, radius: radius, angleDeg: -90, diameter: 14),
+                         with: .color(.white))
             return
         }
 
@@ -159,7 +161,7 @@ struct ArcDialView: View {
             var fullArc = Path()
             fullArc.addArc(center: center, radius: radius,
                            startAngle: startAngle, endAngle: .degrees(270), clockwise: false)
-            context.stroke(fullArc, with: .color(color), style: strokeStyle)
+            context.stroke(fullArc, with: .color(color.opacity(0.7)), style: strokeStyle)
         }
 
         if partialAngle > 0 {
@@ -170,23 +172,23 @@ struct ArcDialView: View {
                        startAngle: startAngle,
                        endAngle: .degrees(-90 + sweepDeg),
                        clockwise: false)
-            context.stroke(arc, with: .color(color), style: strokeStyle)
+            context.stroke(arc, with: .color(color.opacity(0.7)), style: strokeStyle)
         }
 
         let endSweepDeg = partialAngle > 0 ? partialAngle / (2 * .pi) * 360 : 360
-        let knobSize: CGFloat = isDragging ? 22 : 18
+        let knobSize: CGFloat = isDragging ? 16 : 14
         context.fill(knobPath(center: center, radius: radius,
                               angleDeg: -90 + endSweepDeg, diameter: knobSize),
-                     with: .color(revolutionColor(revolution: fullRevolutions)))
+                     with: .color(.white))
     }
 
-    /// Color for each revolution layer: accent → red → deep purple over 4 hours
+    /// Color for each revolution layer: muted blue → rose → mauve → purple over 4 hours
     private func revolutionColor(revolution: Int) -> Color {
         switch revolution {
-        case 0: .accentColor
-        case 1: Color(red: 0.85, green: 0.25, blue: 0.3)
-        case 2: Color(red: 0.7, green: 0.15, blue: 0.5)
-        default: Color(red: 0.45, green: 0.1, blue: 0.6) // deep purple at 4h+
+        case 0: Color(red: 0.30, green: 0.50, blue: 0.82) // cornflower blue
+        case 1: Color(red: 0.82, green: 0.50, blue: 0.50) // soft rose
+        case 2: Color(red: 0.75, green: 0.42, blue: 0.75) // orchid
+        default: Color(red: 0.50, green: 0.38, blue: 0.72) // muted purple
         }
     }
 

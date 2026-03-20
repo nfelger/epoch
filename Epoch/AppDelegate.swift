@@ -14,18 +14,27 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var lastPopoverCloseTime: Date = .distantPast
     private let timerIcon = NSImage(systemSymbolName: "timer", accessibilityDescription: "Epoch")!
 
-    private lazy var contextMenu: NSMenu = {
+    private func buildContextMenu() -> NSMenu {
         let menu = NSMenu()
+        if timerModel.state == .running || timerModel.state == .finished {
+            menu.addItem(NSMenuItem(title: "Cancel Timer", action: #selector(cancelTimer), keyEquivalent: ""))
+            menu.addItem(.separator())
+        }
         menu.addItem(NSMenuItem(title: "About Epoch", action: #selector(showAbout), keyEquivalent: ""))
         menu.addItem(.separator())
-        let quit = NSMenuItem(
+        menu.addItem(NSMenuItem(
             title: "Quit Epoch",
             action: #selector(NSApplication.terminate(_:)),
             keyEquivalent: "q"
-        )
-        menu.addItem(quit)
+        ))
         return menu
-    }()
+    }
+
+    @objc func cancelTimer() {
+        flashTimer?.invalidate()
+        flashTimer = nil
+        timerModel.cancel()
+    }
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         UNUserNotificationCenter.current().delegate = self
@@ -43,7 +52,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         popover = NSPopover()
-        popover.contentSize = NSSize(width: 230, height: 240)
+        popover.contentSize = NSSize(width: 174, height: 174)
         popover.behavior = .transient
         popover.delegate = self
         let contentView = PopoverContentView(model: timerModel)
@@ -62,7 +71,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func togglePopover() {
         guard let button = statusItem.button else { return }
         if NSApp.currentEvent?.type == .rightMouseUp {
-            contextMenu.popUp(positioning: nil, at: NSPoint(x: 0, y: button.bounds.height), in: button)
+            buildContextMenu().popUp(positioning: nil, at: NSPoint(x: 0, y: button.bounds.height), in: button)
             return
         }
         if popover.isShown {
@@ -70,6 +79,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         } else {
             // Suppress re-open if the popover just closed via .transient dismiss
             guard Date.now.timeIntervalSince(lastPopoverCloseTime) > 0.2 else { return }
+            statusItem.length = 72
             popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
             NSApp.activate(ignoringOtherApps: true)
         }
@@ -89,9 +99,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func updateStatusItem() {
+        let frozen = popover.isShown
         switch timerModel.state {
         case .inactive:
-            statusItem.length = NSStatusItem.squareLength
+            if !frozen { statusItem.length = NSStatusItem.squareLength }
             statusItem.button?.image = timerIcon
             statusItem.button?.title = ""
         case .running:
@@ -102,11 +113,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             let label = hrs > 0
                 ? String(format: "%d:%02d:%02d", hrs, mins, secs)
                 : String(format: "%d:%02d", mins, secs)
-            statusItem.length = hrs > 0 ? 72 : 56
+            if !frozen { statusItem.length = NSStatusItem.variableLength }
             statusItem.button?.image = nil
             statusItem.button?.title = " \(label)"
         case .finished:
-            statusItem.length = 56
+            if !frozen { statusItem.length = NSStatusItem.variableLength }
             statusItem.button?.image = nil
         }
     }
@@ -118,16 +129,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         if currentState == .running, previousState != .running {
             requestNotificationPermissionIfNeeded()
-            if popover.isShown {
-                DispatchQueue.main.async { [weak self] in
-                    self?.popover.close()
-                }
-            }
         }
         if currentState == .finished, previousState != .finished {
             playCompletionSound()
             scheduleCompletionNotification()
             startFlashSequence()
+        }
+        if currentState == .inactive, previousState == .finished {
+            flashTimer?.invalidate()
+            flashTimer = nil
         }
     }
 
@@ -197,6 +207,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 extension AppDelegate: NSPopoverDelegate {
     func popoverDidClose(_ notification: Notification) {
         lastPopoverCloseTime = Date.now
+        syncStatusItemLength()
+    }
+
+    private func syncStatusItemLength() {
+        if timerModel.state == .inactive {
+            statusItem.length = NSStatusItem.squareLength
+        } else {
+            statusItem.length = NSStatusItem.variableLength
+        }
     }
 }
 
