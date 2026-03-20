@@ -29,7 +29,7 @@ targets:
         LSUIElement: true
         CFBundleDisplayName: Epoch
         CFBundleShortVersionString: "0.1.0"
-        CFBundleVersion: "1"
+        CFBundleVersion: "4"
 
   EpochTests:
     type: bundle.unit-test

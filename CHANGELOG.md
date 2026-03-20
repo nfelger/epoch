@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-03-20
+
+## [0.1.0] - 2026-03-20
+
+## [0.1.0] - 2026-03-20
+
 ### Added
 
 - `make release VERSION=x.y.z` command for fully automated releases (version bump, changelog stamp, lint, test, build, zip, GitHub release)
