@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ArcDialView: View {
     @Bindable var model: TimerModel
+    var isOverlayMode: Bool = false
     @State private var cumulativeAngle: Double = 0
     @State private var lastAngle: Double = 0
     @State private var isDragging = false
@@ -28,6 +29,12 @@ struct ArcDialView: View {
         }
     }
 
+    private func arcRadius(in size: CGSize) -> CGFloat {
+        min(size.width, size.height) / 2 - 15
+    }
+
+    private let arcLineWidth: CGFloat = 10
+
     var body: some View {
         GeometryReader { geo in
             ZStack {
@@ -37,7 +44,11 @@ struct ArcDialView: View {
 
                 centerLabel(geo: geo)
             }
-            .contentShape(Rectangle())
+            .contentShape(
+                isOverlayMode
+                    ? AnyShape(ArcRingShape(radius: arcRadius(in: geo.size), lineWidth: arcLineWidth))
+                    : AnyShape(Rectangle())
+            )
             .gesture(
                 DragGesture(minimumDistance: 0, coordinateSpace: .local)
                     .onChanged { value in
@@ -102,12 +113,12 @@ struct ArcDialView: View {
     // MARK: - Canvas Drawing
 
     private func drawTickMarks(
-        context: GraphicsContext, center: CGPoint, radius: CGFloat, lineWidth: CGFloat
+        context: GraphicsContext, center: CGPoint, radius: CGFloat
     ) {
         for idx in 0 ..< 12 {
             let tickAngle = Angle.degrees(-90 + Double(idx) * 30).radians
-            let innerR = radius - lineWidth / 2 - 1
-            let outerR = radius + lineWidth / 2 + 1
+            let innerR = radius - arcLineWidth / 2 - 1
+            let outerR = radius + arcLineWidth / 2 + 1
             var tick = Path()
             tick.move(to: CGPoint(x: center.x + innerR * CoreGraphics.cos(tickAngle),
                                   y: center.y + innerR * CoreGraphics.sin(tickAngle)))
@@ -131,10 +142,9 @@ struct ArcDialView: View {
 
     private func drawArc(context: GraphicsContext, size: CGSize) {
         let center = CGPoint(x: size.width / 2, y: size.height / 2)
-        let radius = min(size.width, size.height) / 2 - 15
+        let radius = arcRadius(in: size)
         let startAngle = Angle.degrees(-90)
-        let lineWidth: CGFloat = 10
-        let strokeStyle = StrokeStyle(lineWidth: lineWidth, lineCap: .butt)
+        let strokeStyle = StrokeStyle(lineWidth: arcLineWidth, lineCap: .butt)
 
         // Track ring
         var track = Path()
@@ -144,7 +154,7 @@ struct ArcDialView: View {
                        with: .color(.secondary.opacity(0.2)),
                        style: strokeStyle)
 
-        drawTickMarks(context: context, center: center, radius: radius, lineWidth: lineWidth)
+        drawTickMarks(context: context, center: center, radius: radius)
 
         let totalAngle = arcAngle
         guard totalAngle > 0 else {
@@ -245,5 +255,27 @@ struct ArcDialView: View {
 
     private func formatTime(_ date: Date) -> String {
         Self.timeFormatter.string(from: date)
+    }
+}
+
+private struct ArcRingShape: Shape {
+    let radius: CGFloat
+    let lineWidth: CGFloat
+    let tolerance: CGFloat = 7
+
+    func path(in rect: CGRect) -> Path {
+        let center = CGPoint(x: rect.midX, y: rect.midY)
+        let outer = radius + lineWidth / 2 + tolerance
+        let inner = max(0, radius - lineWidth / 2 - tolerance)
+        var path = Path()
+        path.addEllipse(in: CGRect(
+            x: center.x - outer, y: center.y - outer,
+            width: outer * 2, height: outer * 2
+        ))
+        path.addEllipse(in: CGRect(
+            x: center.x - inner, y: center.y - inner,
+            width: inner * 2, height: inner * 2
+        ))
+        return path
     }
 }
