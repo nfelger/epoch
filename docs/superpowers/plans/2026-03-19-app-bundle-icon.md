@@ -89,6 +89,6 @@ This must be in `project.yml` (not just the generated pbxproj) so it survives `x
 
 ## Sources
 
-- **Origin brainstorm:** [docs/superpowers/brainstorms/2026-03-18-app-icon.md](docs/superpowers/brainstorms/2026-03-18-app-icon.md) — Key decisions: arc/dial concept, monochrome palette, hand-crafted creation, no external dependencies
+- **Origin brainstorm:** [docs/superpowers/brainstorms/2026-03-18-app-icon.md](../brainstorms/2026-03-18-app-icon.md) — Key decisions: arc/dial concept, monochrome palette, hand-crafted creation, no external dependencies
 - **ArcDialView visual reference:** `Epoch/Views/ArcDialView.swift` — 14pt stroke, round caps, secondary track at 0.2 opacity, 12 tick marks
 - **project.yml resource config:** `project.yml` — existing `resources` path covers `Epoch/Resources/`

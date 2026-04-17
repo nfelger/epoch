@@ -91,5 +91,5 @@ These are starting values — expect iteration after visual review.
 
 ## Sources
 
-- **Origin brainstorm:** [docs/superpowers/brainstorms/2026-03-20-arc-dial-visual-refinement.md](docs/superpowers/brainstorms/2026-03-20-arc-dial-visual-refinement.md) — key decisions: 80% arc opacity, 3pt ticks extending beyond track, butt cap + knob approach, white knob in all states, muted palette
+- **Origin brainstorm:** [docs/superpowers/brainstorms/2026-03-20-arc-dial-visual-refinement.md](../brainstorms/2026-03-20-arc-dial-visual-refinement.md) — key decisions: 80% arc opacity, 3pt ticks extending beyond track, butt cap + knob approach, white knob in all states, muted palette
 - **Primary file:** `Epoch/Views/ArcDialView.swift` — all changes confined here

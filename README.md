@@ -43,4 +43,4 @@ make test    # Unit tests
 
 ## Implementation
 
-See [docs/plans/](docs/plans/) for the full implementation plan and [docs/brainstorms/](docs/brainstorms/) for design decisions.
+See [docs/superpowers/plans/](docs/superpowers/plans/) for implementation plans and [docs/superpowers/brainstorms/](docs/superpowers/brainstorms/) for design decisions.
