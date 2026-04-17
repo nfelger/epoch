@@ -1,3 +1,5 @@
+# Building a macOS Menubar Countdown Timer with SwiftUI Arc Dial
+
 ## Architecture Overview
 
 Epoch is a macOS menubar countdown timer built as a **Swift + SwiftUI/AppKit hybrid** with zero third-party dependencies, targeting macOS 14+.

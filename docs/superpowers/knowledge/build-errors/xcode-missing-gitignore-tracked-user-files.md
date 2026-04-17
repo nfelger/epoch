@@ -1,3 +1,5 @@
+# .gitignore Setup for Swift/Xcode Projects
+
 ## Root Cause
 
 Missing `.gitignore` from project inception. The initial commit included Xcode user-specific files (`xcuserdata/` containing `UserInterfaceState.xcuserstate` and `xcschememanagement.plist`) that should never be version-controlled.
