@@ -15,12 +15,34 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var eventMonitor: Any?
     private let timerIcon = NSImage(systemSymbolName: "timer", accessibilityDescription: "Epoch")!
 
+    private var showTimerOverlay: Bool {
+        get {
+            if UserDefaults.standard.object(forKey: "showTimerOverlay") == nil {
+                return true
+            }
+            return UserDefaults.standard.bool(forKey: "showTimerOverlay")
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: "showTimerOverlay")
+        }
+    }
+
     private func buildContextMenu() -> NSMenu {
         let menu = NSMenu()
         if timerModel.state == .running || timerModel.state == .finished {
             menu.addItem(NSMenuItem(title: "Cancel Timer", action: #selector(cancelTimer), keyEquivalent: ""))
             menu.addItem(.separator())
         }
+
+        let overlayItem = NSMenuItem(
+            title: "Show Timer Overlay",
+            action: #selector(toggleOverlaySetting),
+            keyEquivalent: ""
+        )
+        overlayItem.state = showTimerOverlay ? .on : .off
+        menu.addItem(overlayItem)
+        menu.addItem(.separator())
+
         menu.addItem(NSMenuItem(title: "About Epoch", action: #selector(showAbout), keyEquivalent: ""))
         menu.addItem(.separator())
         menu.addItem(NSMenuItem(
@@ -29,6 +51,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             keyEquivalent: "q"
         ))
         return menu
+    }
+
+    @objc func toggleOverlaySetting() {
+        showTimerOverlay.toggle()
+        if showTimerOverlay {
+            if timerModel.state == .running || timerModel.state == .finished {
+                showOverlay()
+            }
+        } else {
+            hideOverlay()
+        }
+    }
+
+    private func showOverlay() {
+        overlayPanel.makeKeyAndOrderFront(nil)
     }
 
     @objc func cancelTimer() {
