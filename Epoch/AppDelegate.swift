@@ -15,6 +15,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var eventMonitor: Any?
     private let timerIcon = NSImage(systemSymbolName: "timer", accessibilityDescription: "Epoch")!
 
+    private var hasShownOverlayOnce = false
+
     private var showTimerOverlay: Bool {
         get {
             if UserDefaults.standard.object(forKey: "showTimerOverlay") == nil {
@@ -65,11 +67,49 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func showOverlay() {
-        overlayPanel.makeKeyAndOrderFront(nil)
+        guard showTimerOverlay else { return }
+
+        if !hasShownOverlayOnce {
+            positionOverlayBelowMenubar()
+            hasShownOverlayOnce = true
+        }
+
+        overlayPanel.orderFront(nil)
+        updateOverlayOpacity()
+    }
+
+    private func positionOverlayBelowMenubar() {
+        guard let button = statusItem.button, let buttonWindow = button.window else { return }
+
+        let buttonRectInWindow = button.convert(button.bounds, to: nil)
+        let buttonRectOnScreen = buttonWindow.convertToScreen(buttonRectInWindow)
+
+        let panelWidth = overlayPanel.frame.width
+        let panelHeight = overlayPanel.frame.height
+        var panelX = buttonRectOnScreen.midX - panelWidth / 2
+        let panelY = buttonRectOnScreen.minY - panelHeight - 6
+
+        if let screen = buttonWindow.screen ?? NSScreen.main {
+            panelX = max(screen.visibleFrame.minX, min(panelX, screen.visibleFrame.maxX - panelWidth))
+        }
+
+        overlayPanel.setFrameOrigin(NSPoint(x: panelX, y: panelY))
+    }
+
+    private func updateOverlayOpacity() {
+        switch timerModel.state {
+        case .inactive:
+            break
+        case .running:
+            overlayPanel.alphaValue = 0.5
+        case .finished:
+            overlayPanel.alphaValue = 1.0
+        }
     }
 
     @objc func cancelTimer() {
         stopFlashAnimation()
+        hideOverlay()
         timerModel.cancel()
     }
 
@@ -167,11 +207,27 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             buildContextMenu().popUp(positioning: nil, at: NSPoint(x: 0, y: button.bounds.height), in: button)
             return
         }
-        if panel.isVisible {
-            hidePanel()
+
+        if timerModel.state == .running || timerModel.state == .finished {
+            if overlayPanel.isVisible {
+                hideOverlay()
+            } else if showTimerOverlay {
+                showOverlay()
+            } else {
+                if panel.isVisible {
+                    hidePanel()
+                } else {
+                    guard Date.now.timeIntervalSince(lastPanelCloseTime) > 0.2 else { return }
+                    showPanel()
+                }
+            }
         } else {
-            guard Date.now.timeIntervalSince(lastPanelCloseTime) > 0.2 else { return }
-            showPanel()
+            if panel.isVisible {
+                hidePanel()
+            } else {
+                guard Date.now.timeIntervalSince(lastPanelCloseTime) > 0.2 else { return }
+                showPanel()
+            }
         }
     }
 
@@ -246,6 +302,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             if !frozen { statusItem.length = NSStatusItem.variableLength }
             statusItem.button?.image = nil
         }
+        updateOverlayOpacity()
     }
 
     private func handleStateTransitions() {
@@ -255,14 +312,23 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         if currentState == .running, previousState != .running {
             requestNotificationPermissionIfNeeded()
+            showOverlay()
+            hidePanel()
         }
         if currentState == .finished, previousState != .finished {
             playCompletionSound()
             scheduleCompletionNotification()
             startFlashSequence()
+            updateOverlayOpacity()
         }
         if currentState == .inactive, previousState == .finished {
             stopFlashAnimation()
+            hideOverlay()
+            hasShownOverlayOnce = false
+        }
+        if currentState == .inactive, previousState == .running {
+            hideOverlay()
+            hasShownOverlayOnce = false
         }
     }
 
