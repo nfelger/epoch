@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Added
+
+- Floating transparent timer overlay that keeps the arc dial visible while the timer runs
+- Overlay appears at 50% opacity during countdown, snaps to 100% with pulsing red border when finished
+- Draggable overlay panel — drag the knob to adjust time, drag anywhere else to reposition
+- "Show Timer Overlay" toggle in the right-click context menu, persisted via UserDefaults
+- Overlay visible across all spaces and in fullscreen mode
+
 ## [0.1.0] - 2026-03-20
 
 ## [0.1.0] - 2026-03-20
