@@ -53,4 +53,4 @@ Release builds should not live in git — they are large binaries that bloat the
 
 ## Related Documentation
 
-No existing related solutions. This is the first entry in `docs/superpowers/knowledge/`.
+- [Dev Workflow Tooling](../how-to/swift-dev-workflow-xcodegen-lint-test.md) — Makefile targets, SwiftLint/SwiftFormat setup for the same project
