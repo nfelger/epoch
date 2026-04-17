@@ -6,6 +6,7 @@ import UserNotifications
 class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem!
     var panel: NSPanel!
+    var overlayPanel: NSPanel!
     let timerModel = TimerModel()
 
     private var flashTimer: Timer?
@@ -81,6 +82,39 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         hostingView.autoresizingMask = [.width, .height]
         visualEffect.addSubview(hostingView)
         panel.contentView = visualEffect
+
+        // Overlay panel
+        let overlayPanel = NSPanel(
+            contentRect: NSRect(origin: .zero, size: panelSize),
+            styleMask: [.titled, .closable, .nonactivatingPanel, .fullSizeContentView],
+            backing: .buffered,
+            defer: false
+        )
+        overlayPanel.titlebarAppearsTransparent = true
+        overlayPanel.titleVisibility = .hidden
+        overlayPanel.backgroundColor = .clear
+        overlayPanel.isOpaque = false
+        overlayPanel.hasShadow = true
+        overlayPanel.level = .floating
+        overlayPanel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        overlayPanel.isMovableByWindowBackground = true
+        overlayPanel.animationBehavior = .utilityWindow
+
+        let overlayVisualEffect = NSVisualEffectView(frame: NSRect(origin: .zero, size: panelSize))
+        overlayVisualEffect.material = .popover
+        overlayVisualEffect.blendingMode = .behindWindow
+        overlayVisualEffect.state = .active
+        overlayVisualEffect.wantsLayer = true
+        overlayVisualEffect.layer?.cornerRadius = 12
+        overlayVisualEffect.layer?.masksToBounds = true
+
+        let overlayHostingView = FirstMouseHostingView(rootView: OverlayContentView(model: timerModel))
+        overlayHostingView.frame = NSRect(origin: .zero, size: panelSize)
+        overlayHostingView.autoresizingMask = [.width, .height]
+        overlayVisualEffect.addSubview(overlayHostingView)
+        overlayPanel.contentView = overlayVisualEffect
+        overlayPanel.delegate = self
+        self.overlayPanel = overlayPanel
 
         observeModel()
     }
@@ -195,6 +229,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    private func hideOverlay() {
+        overlayPanel.orderOut(nil)
+    }
+
     private func syncStatusItemLength() {
         if timerModel.state == .inactive {
             statusItem.length = NSStatusItem.squareLength
@@ -284,6 +322,16 @@ extension AppDelegate: @preconcurrency UNUserNotificationCenterDelegate {
         withCompletionHandler handler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
         handler([.banner, .sound])
+    }
+}
+
+extension AppDelegate: NSWindowDelegate {
+    func windowShouldClose(_ sender: NSWindow) -> Bool {
+        if sender === overlayPanel {
+            hideOverlay()
+            return false
+        }
+        return true
     }
 }
 
