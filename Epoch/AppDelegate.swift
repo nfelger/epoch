@@ -5,25 +5,14 @@ import UserNotifications
 @MainActor
 class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem!
-    var panel: NSPanel!
     var overlayPanel: NSPanel!
     var overlayBackground: NSVisualEffectView!
     let timerModel = TimerModel()
 
     private var flashTimer: Timer?
     private var lastObservedState: TimerState = .inactive
-    private var lastPanelCloseTime: Date = .distantPast
-    private var eventMonitor: Any?
     private var overlayDragStartOrigin: CGPoint?
     private let timerIcon = NSImage(systemSymbolName: "timer", accessibilityDescription: "Epoch")!
-    private var hasShownOverlayOnce = false
-    private var showTimerOverlay: Bool {
-        get {
-            UserDefaults.standard.object(forKey: "showTimerOverlay") == nil
-                || UserDefaults.standard.bool(forKey: "showTimerOverlay")
-        }
-        set { UserDefaults.standard.set(newValue, forKey: "showTimerOverlay") }
-    }
 
     private func buildContextMenu() -> NSMenu {
         let menu = NSMenu()
@@ -31,12 +20,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             menu.addItem(NSMenuItem(title: "Cancel Timer", action: #selector(cancelTimer), keyEquivalent: ""))
             menu.addItem(.separator())
         }
-        let overlayItem = NSMenuItem(
-            title: "Show Timer Overlay", action: #selector(toggleOverlaySetting), keyEquivalent: ""
-        )
-        overlayItem.state = showTimerOverlay ? .on : .off
-        menu.addItem(overlayItem)
-        menu.addItem(.separator())
         menu.addItem(NSMenuItem(title: "About Epoch", action: #selector(showAbout), keyEquivalent: ""))
         menu.addItem(.separator())
         menu.addItem(NSMenuItem(
@@ -55,10 +38,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         UNUserNotificationCenter.current().delegate = self
     }
 
-    func applicationWillTerminate(_ notification: Notification) {
-        if let monitor = eventMonitor { NSEvent.removeMonitor(monitor) }
-    }
-
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
@@ -68,7 +47,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             button.target = self
             button.sendAction(on: [.leftMouseUp, .rightMouseUp])
         }
-        setupPopoverPanel()
         setupOverlayPanel()
         observeModel()
     }
@@ -84,23 +62,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             buildContextMenu().popUp(positioning: nil, at: NSPoint(x: 0, y: button.bounds.height), in: button)
             return
         }
-        if timerModel.state == .running || timerModel.state == .finished {
-            if overlayPanel.isVisible {
-                hideOverlay()
-            } else if showTimerOverlay {
-                showOverlay()
-            } else {
-                if panel.isVisible { hidePanel() } else {
-                    guard Date.now.timeIntervalSince(lastPanelCloseTime) > 0.2 else { return }
-                    showPanel()
-                }
-            }
-        } else {
-            if panel.isVisible { hidePanel() } else {
-                guard Date.now.timeIntervalSince(lastPanelCloseTime) > 0.2 else { return }
-                showPanel()
-            }
-        }
+        if overlayPanel.isVisible { hideOverlay() } else { showOverlay() }
     }
 
     // MARK: - Model Observation
@@ -117,10 +79,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func updateStatusItem() {
-        let frozen = panel.isVisible
         switch timerModel.state {
         case .inactive:
-            if !frozen { statusItem.length = NSStatusItem.squareLength }
+            statusItem.length = NSStatusItem.squareLength
             statusItem.button?.image = timerIcon
             statusItem.button?.title = ""
         case .running:
@@ -131,11 +92,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             let label = hrs > 0
                 ? String(format: "%d:%02d:%02d", hrs, mins, secs)
                 : String(format: "%d:%02d", mins, secs)
-            if !frozen { statusItem.length = NSStatusItem.variableLength }
+            statusItem.length = NSStatusItem.variableLength
             statusItem.button?.image = nil
             statusItem.button?.title = " \(label)"
         case .finished:
-            if !frozen { statusItem.length = NSStatusItem.variableLength }
+            statusItem.length = NSStatusItem.variableLength
             statusItem.button?.image = nil
         }
         updateOverlayOpacity()
@@ -147,8 +108,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         lastObservedState = currentState
         if currentState == .running, previousState != .running {
             requestNotificationPermissionIfNeeded()
-            showOverlay()
-            hidePanel()
         }
         if currentState == .finished, previousState != .finished {
             playCompletionSound()
@@ -159,7 +118,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if currentState == .inactive, previousState != .inactive {
             if previousState == .finished { stopFlashAnimation() }
             hideOverlay()
-            hasShownOverlayOnce = false
         }
     }
 }
@@ -167,26 +125,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 // MARK: - Panel Management
 
 extension AppDelegate {
-    private func setupPopoverPanel() {
-        let panelSize = NSSize(width: 174, height: 174)
-        panel = NSPanel(
-            contentRect: NSRect(origin: .zero, size: panelSize),
-            styleMask: [.borderless, .nonactivatingPanel],
-            backing: .buffered,
-            defer: false
-        )
-        panel.backgroundColor = .clear
-        panel.isOpaque = false
-        panel.hasShadow = true
-        panel.level = .popUpMenu
-        let visualEffect = makeVibrancyView(size: panelSize)
-        let hostingView = FirstMouseHostingView(rootView: PopoverContentView(model: timerModel))
-        hostingView.frame = NSRect(origin: .zero, size: panelSize)
-        hostingView.autoresizingMask = [.width, .height]
-        visualEffect.addSubview(hostingView)
-        panel.contentView = visualEffect
-    }
-
     private func setupOverlayPanel() {
         let panelSize = NSSize(width: 174, height: 174)
         let newPanel = NSPanel(
@@ -203,6 +141,7 @@ extension AppDelegate {
         newPanel.level = .floating
         newPanel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         newPanel.animationBehavior = .utilityWindow
+        newPanel.setFrameAutosaveName("OverlayPanel")
         let container = NSView(frame: NSRect(origin: .zero, size: panelSize))
         let background = makeVibrancyView(size: panelSize)
         background.material = .hudWindow
@@ -244,45 +183,16 @@ extension AppDelegate {
         targetPanel.setFrameOrigin(NSPoint(x: panelX, y: panelY))
     }
 
-    private func showPanel() {
-        positionPanelBelowMenubar(panel)
-        // Freeze width to prevent the countdown text from resizing the button while the panel is open
-        statusItem.length = 72
-        panel.makeKeyAndOrderFront(nil)
-        NSApp.activate(ignoringOtherApps: true)
-        eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
-            self?.hidePanel()
-        }
-    }
-
-    private func hidePanel() {
-        panel.orderOut(nil)
-        if let monitor = eventMonitor {
-            NSEvent.removeMonitor(monitor)
-            eventMonitor = nil
-        }
-        lastPanelCloseTime = Date.now
-        syncStatusItemLength()
-    }
-
-    private func hideOverlay() {
-        overlayPanel.orderOut(nil)
-    }
-
     private func showOverlay() {
-        guard showTimerOverlay else { return }
-        if !hasShownOverlayOnce {
+        if overlayPanel.frame.origin == .zero {
             positionPanelBelowMenubar(overlayPanel)
-            hasShownOverlayOnce = true
         }
         overlayPanel.orderFront(nil)
         updateOverlayOpacity()
     }
 
-    @objc func toggleOverlaySetting() {
-        showTimerOverlay.toggle()
-        let timerActive = timerModel.state == .running || timerModel.state == .finished
-        if showTimerOverlay, timerActive { showOverlay() } else { hideOverlay() }
+    private func hideOverlay() {
+        overlayPanel.orderOut(nil)
     }
 
     private func overlayPanelDragChanged(_ translation: CGSize) {
@@ -293,10 +203,6 @@ extension AppDelegate {
 
     private func updateOverlayOpacity() {
         overlayBackground.alphaValue = timerModel.state == .finished ? 1.0 : 0.75
-    }
-
-    private func syncStatusItemLength() {
-        statusItem.length = timerModel.state == .inactive ? NSStatusItem.squareLength : NSStatusItem.variableLength
     }
 }
 
@@ -334,7 +240,7 @@ extension AppDelegate {
 
     private func startFlashSequence() {
         stopFlashAnimation()
-        if !panel.isVisible { statusItem.length = NSStatusItem.squareLength }
+        statusItem.length = NSStatusItem.squareLength
         statusItem.button?.title = ""
         let config = NSImage.SymbolConfiguration.preferringMulticolor()
         let steps = 6
