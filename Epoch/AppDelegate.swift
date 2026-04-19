@@ -7,6 +7,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem!
     var panel: NSPanel!
     var overlayPanel: NSPanel!
+    var overlayBackground: NSVisualEffectView!
     let timerModel = TimerModel()
 
     private var flashTimer: Timer?
@@ -202,14 +203,17 @@ extension AppDelegate {
         newPanel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         newPanel.isMovableByWindowBackground = true
         newPanel.animationBehavior = .utilityWindow
-        let overlayVisualEffect = makeVibrancyView(size: panelSize)
+        let container = NSView(frame: NSRect(origin: .zero, size: panelSize))
+        let background = makeVibrancyView(size: panelSize)
         let overlayHostingView = FirstMouseHostingView(rootView: OverlayContentView(model: timerModel))
         overlayHostingView.frame = NSRect(origin: .zero, size: panelSize)
         overlayHostingView.autoresizingMask = [.width, .height]
-        overlayVisualEffect.addSubview(overlayHostingView)
-        newPanel.contentView = overlayVisualEffect
+        container.addSubview(background)
+        container.addSubview(overlayHostingView)
+        newPanel.contentView = container
         newPanel.delegate = self
         overlayPanel = newPanel
+        overlayBackground = background
     }
 
     private func makeVibrancyView(size: NSSize) -> NSVisualEffectView {
@@ -277,7 +281,7 @@ extension AppDelegate {
     }
 
     private func updateOverlayOpacity() {
-        overlayPanel.alphaValue = timerModel.state == .finished ? 1.0 : 0.5
+        overlayBackground.alphaValue = timerModel.state == .finished ? 1.0 : 0.5
     }
 
     private func syncStatusItemLength() {
