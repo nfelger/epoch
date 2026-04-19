@@ -7,12 +7,18 @@
 - Floating transparent timer overlay that keeps the arc dial visible while the timer runs
 - Overlay appears at 50% opacity during countdown, snaps to 100% with pulsing red border when finished
 - Draggable overlay panel — drag the knob to adjust time, drag anywhere else to reposition
-- "Show Timer Overlay" toggle in the right-click context menu, persisted via UserDefaults
 - Overlay visible across all spaces and in fullscreen mode
 
 ### Fixed
 
 - Dragging the arc dial knob in the overlay now adjusts the time instead of moving the panel
+
+### Changed
+
+- The overlay panel is now the single UI for both setting and monitoring the timer. The separate popover panel has been removed.
+- The "Show Timer Overlay" menu option has been removed. The overlay is always used.
+- The overlay remembers its position across app launches.
+- When setting a timer, drag the arc ring on the overlay (same ring-only hit area used while the timer runs).
 
 ## [0.1.0] - 2026-03-20
 

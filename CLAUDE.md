@@ -29,7 +29,7 @@ Run `make lint` and `make test` before committing. Run `make format` to auto-fix
 
 ## Architecture
 
-**AppDelegate** (`Epoch/AppDelegate.swift`) is the central coordinator. It owns the `NSStatusItem`, `NSPopover`, and `TimerModel`, and drives all AppKit side effects (status bar text, flash sequence, sound, notifications) by observing model state changes via `withObservationTracking`.
+**AppDelegate** (`Epoch/AppDelegate.swift`) is the central coordinator. It owns the `NSStatusItem`, `NSPanel (overlay)`, and `TimerModel`, and drives all AppKit side effects (status bar text, flash sequence, sound, notifications) by observing model state changes via `withObservationTracking`.
 
 **TimerModel** (`Epoch/TimerModel.swift`) is a pure state machine with three states: `inactive` → `running` → `finished`. It uses wall-clock `endDate` (not decremented counters), making it self-correcting across sleep/wake.
 
@@ -39,11 +39,11 @@ Run `make lint` and `make test` before committing. Run `make format` to auto-fix
 - Snap to 5-minute increments on release, smooth during drag
 - 12 tick marks at 5-minute intervals on background track
 
-**PopoverContentView** (`Epoch/Views/PopoverContentView.swift`) wraps the dial and cancel button in the popover.
+**OverlayContentView** (`Epoch/Views/OverlayContentView.swift`) is the single UI surface — wraps `ArcDialView` with a drag gesture that moves the overlay window. Shown for all timer states (setting, running, finished).
 
 **EpochApp** (`Epoch/EpochApp.swift`) is a minimal `@main` entry point that delegates to `AppDelegate`.
 
 **Key patterns:**
 - `@MainActor` isolation throughout — all UI state is main-actor bound
-- `FirstMouseHostingView` (in AppDelegate) overrides `acceptsFirstMouse` so the popover responds to the first click without needing focus
+- `FirstMouseHostingView` (in AppDelegate) overrides `acceptsFirstMouse` so the overlay responds to the first click without needing focus
 - Completion effects (sound → notification → flash) are sequenced in AppDelegate, triggered by observing state transition to `.finished`
