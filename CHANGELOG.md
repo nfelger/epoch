@@ -10,6 +10,10 @@
 - "Show Timer Overlay" toggle in the right-click context menu, persisted via UserDefaults
 - Overlay visible across all spaces and in fullscreen mode
 
+### Fixed
+
+- Dragging the arc dial knob in the overlay now adjusts the time instead of moving the panel
+
 ## [0.1.0] - 2026-03-20
 
 ## [0.1.0] - 2026-03-20

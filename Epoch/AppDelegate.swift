@@ -14,6 +14,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var lastObservedState: TimerState = .inactive
     private var lastPanelCloseTime: Date = .distantPast
     private var eventMonitor: Any?
+    private var overlayDragStartOrigin: CGPoint?
     private let timerIcon = NSImage(systemSymbolName: "timer", accessibilityDescription: "Epoch")!
     private var hasShownOverlayOnce = false
     private var showTimerOverlay: Bool {
@@ -201,12 +202,15 @@ extension AppDelegate {
         newPanel.hasShadow = true
         newPanel.level = .floating
         newPanel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
-        newPanel.isMovableByWindowBackground = true
         newPanel.animationBehavior = .utilityWindow
         let container = NSView(frame: NSRect(origin: .zero, size: panelSize))
         let background = makeVibrancyView(size: panelSize)
         background.material = .hudWindow
-        let overlayHostingView = FirstMouseHostingView(rootView: OverlayContentView(model: timerModel))
+        let overlayHostingView = FirstMouseHostingView(rootView: OverlayContentView(
+            model: timerModel,
+            onDragChanged: { [weak self] in self?.overlayPanelDragChanged($0) },
+            onDragEnded: { [weak self] in self?.overlayDragStartOrigin = nil }
+        ))
         overlayHostingView.frame = NSRect(origin: .zero, size: panelSize)
         overlayHostingView.autoresizingMask = [.width, .height]
         container.addSubview(background)
@@ -279,6 +283,12 @@ extension AppDelegate {
         showTimerOverlay.toggle()
         let timerActive = timerModel.state == .running || timerModel.state == .finished
         if showTimerOverlay, timerActive { showOverlay() } else { hideOverlay() }
+    }
+
+    private func overlayPanelDragChanged(_ translation: CGSize) {
+        if overlayDragStartOrigin == nil { overlayDragStartOrigin = overlayPanel.frame.origin }
+        guard let origin = overlayDragStartOrigin else { return }
+        overlayPanel.setFrameOrigin(CGPoint(x: origin.x + translation.width, y: origin.y - translation.height))
     }
 
     private func updateOverlayOpacity() {
@@ -383,4 +393,6 @@ class FirstMouseHostingView<Content: View>: NSHostingView<Content> {
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
         true
     }
+
+    override var mouseDownCanMoveWindow: Bool { false }
 }
