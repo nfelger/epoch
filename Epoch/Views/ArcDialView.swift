@@ -2,7 +2,6 @@ import SwiftUI
 
 struct ArcDialView: View {
     @Bindable var model: TimerModel
-    var isOverlayMode: Bool = false
     @State private var cumulativeAngle: Double = 0
     @State private var lastAngle: Double = 0
     @State private var isDragging = false
@@ -44,11 +43,7 @@ struct ArcDialView: View {
 
                 centerLabel(geo: geo)
             }
-            .contentShape(
-                isOverlayMode
-                    ? AnyShape(ArcRingShape(radius: arcRadius(in: geo.size), lineWidth: arcLineWidth))
-                    : AnyShape(Rectangle())
-            )
+            .contentShape(AnyShape(ArcRingShape(radius: arcRadius(in: geo.size), lineWidth: arcLineWidth)))
             .gesture(
                 DragGesture(minimumDistance: 0, coordinateSpace: .local)
                     .onChanged { value in
@@ -146,16 +141,14 @@ struct ArcDialView: View {
         let startAngle = Angle.degrees(-90)
         let strokeStyle = StrokeStyle(lineWidth: arcLineWidth, lineCap: .butt)
 
-        // Contrast disc (overlay mode only)
-        if isOverlayMode {
-            let discRadius = radius + arcLineWidth / 2 + 4
-            var disc = Path()
-            disc.addEllipse(in: CGRect(
-                x: center.x - discRadius, y: center.y - discRadius,
-                width: discRadius * 2, height: discRadius * 2
-            ))
-            context.fill(disc, with: .color(Color(red: 0.96, green: 0.95, blue: 0.93).opacity(0.9)))
-        }
+        // Contrast disc
+        let discRadius = radius + arcLineWidth / 2 + 4
+        var disc = Path()
+        disc.addEllipse(in: CGRect(
+            x: center.x - discRadius, y: center.y - discRadius,
+            width: discRadius * 2, height: discRadius * 2
+        ))
+        context.fill(disc, with: .color(Color(red: 0.96, green: 0.95, blue: 0.93).opacity(0.9)))
 
         // Track ring
         var track = Path()

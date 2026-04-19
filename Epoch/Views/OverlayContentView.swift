@@ -7,7 +7,7 @@ struct OverlayContentView: View {
     @State private var borderOpacity: Double = 0.4
 
     var body: some View {
-        ArcDialView(model: model, isOverlayMode: true)
+        ArcDialView(model: model)
             .frame(width: 142, height: 142)
             .padding(16)
             .overlay(pulsingBorder)
