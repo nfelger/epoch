@@ -205,6 +205,7 @@ extension AppDelegate {
         newPanel.animationBehavior = .utilityWindow
         let container = NSView(frame: NSRect(origin: .zero, size: panelSize))
         let background = makeVibrancyView(size: panelSize)
+        background.material = .hudWindow
         let overlayHostingView = FirstMouseHostingView(rootView: OverlayContentView(model: timerModel))
         overlayHostingView.frame = NSRect(origin: .zero, size: panelSize)
         overlayHostingView.autoresizingMask = [.width, .height]
@@ -281,7 +282,7 @@ extension AppDelegate {
     }
 
     private func updateOverlayOpacity() {
-        overlayBackground.alphaValue = timerModel.state == .finished ? 1.0 : 0.5
+        overlayBackground.alphaValue = timerModel.state == .finished ? 1.0 : 0.75
     }
 
     private func syncStatusItemLength() {

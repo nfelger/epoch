@@ -146,6 +146,17 @@ struct ArcDialView: View {
         let startAngle = Angle.degrees(-90)
         let strokeStyle = StrokeStyle(lineWidth: arcLineWidth, lineCap: .butt)
 
+        // Contrast disc (overlay mode only)
+        if isOverlayMode {
+            let discRadius = radius + arcLineWidth / 2 + 4
+            var disc = Path()
+            disc.addEllipse(in: CGRect(
+                x: center.x - discRadius, y: center.y - discRadius,
+                width: discRadius * 2, height: discRadius * 2
+            ))
+            context.fill(disc, with: .color(Color(red: 0.96, green: 0.95, blue: 0.93).opacity(0.9)))
+        }
+
         // Track ring
         var track = Path()
         track.addArc(center: center, radius: radius,
