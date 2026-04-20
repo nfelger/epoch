@@ -309,5 +309,7 @@ class FirstMouseHostingView<Content: View>: NSHostingView<Content> {
         true
     }
 
-    override var mouseDownCanMoveWindow: Bool { false }
+    override var mouseDownCanMoveWindow: Bool {
+        false
+    }
 }

@@ -19,6 +19,7 @@
 - The "Show Timer Overlay" menu option has been removed. The overlay is always used.
 - The overlay remembers its position across app launches.
 - When setting a timer, drag the arc ring on the overlay (same ring-only hit area used while the timer runs).
+- Arc dial now uses a frosted material background and warm color palette (amber → orange → coral → rose) that adapts to both light and dark mode
 
 ## [0.1.0] - 2026-03-20
 
