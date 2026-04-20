@@ -130,12 +130,10 @@ extension AppDelegate {
         let panelSize = NSSize(width: 174, height: 174)
         let newPanel = NSPanel(
             contentRect: NSRect(origin: .zero, size: panelSize),
-            styleMask: [.titled, .closable, .nonactivatingPanel, .fullSizeContentView],
+            styleMask: [.nonactivatingPanel, .fullSizeContentView],
             backing: .buffered,
             defer: false
         )
-        newPanel.titlebarAppearsTransparent = true
-        newPanel.titleVisibility = .hidden
         newPanel.backgroundColor = .clear
         newPanel.isOpaque = false
         newPanel.hasShadow = true
