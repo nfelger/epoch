@@ -28,6 +28,14 @@ struct ArcDialView: View {
         }
     }
 
+    private var knobAngleDeg: Double {
+        let total = arcAngle
+        guard total > 0 else { return -90 }
+        let partial = total.truncatingRemainder(dividingBy: 2 * .pi)
+        let sweepDeg = partial > 0 ? partial / (2 * .pi) * 360 : 360
+        return -90 + sweepDeg
+    }
+
     private func arcRadius(in size: CGSize) -> CGFloat {
         min(size.width, size.height) / 2 - 15
     }
@@ -43,7 +51,11 @@ struct ArcDialView: View {
 
                 centerLabel(geo: geo)
             }
-            .contentShape(AnyShape(ArcRingShape(radius: arcRadius(in: geo.size), lineWidth: arcLineWidth)))
+            .contentShape(AnyShape(KnobHitShape(
+                center: CGPoint(x: geo.size.width / 2, y: geo.size.height / 2),
+                arcRadius: arcRadius(in: geo.size),
+                angleDeg: knobAngleDeg
+            )))
             .gesture(
                 DragGesture(minimumDistance: 0, coordinateSpace: .local)
                     .onChanged { value in
@@ -53,15 +65,15 @@ struct ArcDialView: View {
                         handleDragEnded(value)
                     }
             )
-        }
-        .aspectRatio(1, contentMode: .fit)
-        .onHover { hovering in
-            if hovering {
-                NSCursor.pointingHand.push()
-            } else {
-                NSCursor.pop()
+            .onHover { hovering in
+                if hovering {
+                    NSCursor.pointingHand.push()
+                } else {
+                    NSCursor.pop()
+                }
             }
         }
+        .aspectRatio(1, contentMode: .fit)
     }
 
     // MARK: - Drag Handling
@@ -262,24 +274,21 @@ struct ArcDialView: View {
     }
 }
 
-private struct ArcRingShape: Shape {
-    let radius: CGFloat
-    let lineWidth: CGFloat
-    let tolerance: CGFloat = 7
+private struct KnobHitShape: Shape {
+    let center: CGPoint
+    let arcRadius: CGFloat
+    let angleDeg: Double
 
     func path(in rect: CGRect) -> Path {
-        let center = CGPoint(x: rect.midX, y: rect.midY)
-        let outer = radius + lineWidth / 2 + tolerance
-        let inner = max(0, radius - lineWidth / 2 - tolerance)
-        var path = Path()
-        path.addEllipse(in: CGRect(
-            x: center.x - outer, y: center.y - outer,
-            width: outer * 2, height: outer * 2
+        let rad = Angle.degrees(angleDeg).radians
+        let knobCenter = CGPoint(
+            x: center.x + arcRadius * CoreGraphics.cos(rad),
+            y: center.y + arcRadius * CoreGraphics.sin(rad)
+        )
+        let hitRadius: CGFloat = 14
+        return Path(ellipseIn: CGRect(
+            x: knobCenter.x - hitRadius, y: knobCenter.y - hitRadius,
+            width: hitRadius * 2, height: hitRadius * 2
         ))
-        path.addEllipse(in: CGRect(
-            x: center.x - inner, y: center.y - inner,
-            width: inner * 2, height: inner * 2
-        ))
-        return path
     }
 }

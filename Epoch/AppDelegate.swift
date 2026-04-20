@@ -11,7 +11,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     private var flashTimer: Timer?
     private var lastObservedState: TimerState = .inactive
-    private var overlayDragStartOrigin: CGPoint?
+    private var windowDragStartOrigin: CGPoint?
+    private var windowDragStartMouse: CGPoint?
     private let timerIcon = NSImage(systemSymbolName: "timer", accessibilityDescription: "Epoch")!
 
     private func buildContextMenu() -> NSMenu {
@@ -147,8 +148,11 @@ extension AppDelegate {
         background.material = .hudWindow
         let overlayHostingView = FirstMouseHostingView(rootView: OverlayContentView(
             model: timerModel,
-            onDragChanged: { [weak self] in self?.overlayPanelDragChanged($0) },
-            onDragEnded: { [weak self] in self?.overlayDragStartOrigin = nil }
+            onWindowDragChanged: { [weak self] in self?.handleWindowDrag() },
+            onWindowDragEnded: { [weak self] in
+                self?.windowDragStartOrigin = nil
+                self?.windowDragStartMouse = nil
+            }
         ))
         overlayHostingView.frame = NSRect(origin: .zero, size: panelSize)
         overlayHostingView.autoresizingMask = [.width, .height]
@@ -195,10 +199,17 @@ extension AppDelegate {
         overlayPanel.orderOut(nil)
     }
 
-    private func overlayPanelDragChanged(_ translation: CGSize) {
-        if overlayDragStartOrigin == nil { overlayDragStartOrigin = overlayPanel.frame.origin }
-        guard let origin = overlayDragStartOrigin else { return }
-        overlayPanel.setFrameOrigin(CGPoint(x: origin.x + translation.width, y: origin.y - translation.height))
+    private func handleWindowDrag() {
+        let mouse = NSEvent.mouseLocation
+        if windowDragStartOrigin == nil {
+            windowDragStartOrigin = overlayPanel.frame.origin
+            windowDragStartMouse = mouse
+        }
+        guard let origin = windowDragStartOrigin, let start = windowDragStartMouse else { return }
+        overlayPanel.setFrameOrigin(CGPoint(
+            x: origin.x + mouse.x - start.x,
+            y: origin.y + mouse.y - start.y
+        ))
     }
 
     private func updateOverlayOpacity() {

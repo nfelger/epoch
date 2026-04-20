@@ -2,8 +2,8 @@ import SwiftUI
 
 struct OverlayContentView: View {
     @Bindable var model: TimerModel
-    var onDragChanged: (CGSize) -> Void = { _ in }
-    var onDragEnded: () -> Void = {}
+    var onWindowDragChanged: () -> Void = {}
+    var onWindowDragEnded: () -> Void = {}
     @State private var borderOpacity: Double = 0.4
 
     var body: some View {
@@ -11,14 +11,11 @@ struct OverlayContentView: View {
             .frame(width: 142, height: 142)
             .padding(16)
             .overlay(pulsingBorder)
-            .background(
-                Color.clear
-                    .contentShape(Rectangle())
-                    .gesture(
-                        DragGesture(minimumDistance: 2, coordinateSpace: .local)
-                            .onChanged { value in onDragChanged(value.translation) }
-                            .onEnded { _ in onDragEnded() }
-                    )
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture(minimumDistance: 2)
+                    .onChanged { _ in onWindowDragChanged() }
+                    .onEnded { _ in onWindowDragEnded() }
             )
     }
 
