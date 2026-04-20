@@ -205,13 +205,13 @@ struct ArcDialView: View {
                      with: .color(Color(nsColor: .controlBackgroundColor)))
     }
 
-    /// Color for each revolution layer: muted blue → rose → mauve → purple over 4 hours
+    /// Color for each revolution layer: amber → orange → coral → rose
     private func revolutionColor(revolution: Int) -> Color {
         switch revolution {
-        case 0: Color(red: 0.30, green: 0.50, blue: 0.82) // cornflower blue
-        case 1: Color(red: 0.82, green: 0.50, blue: 0.50) // soft rose
-        case 2: Color(red: 0.75, green: 0.42, blue: 0.75) // orchid
-        default: Color(red: 0.50, green: 0.38, blue: 0.72) // muted purple
+        case 0: Color(red: 0.90, green: 0.65, blue: 0.20) // amber
+        case 1: Color(red: 0.92, green: 0.50, blue: 0.20) // orange
+        case 2: Color(red: 0.90, green: 0.38, blue: 0.35) // coral
+        default: Color(red: 0.88, green: 0.30, blue: 0.45) // rose
         }
     }
 
