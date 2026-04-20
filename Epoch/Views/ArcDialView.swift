@@ -44,7 +44,13 @@ struct ArcDialView: View {
 
     var body: some View {
         GeometryReader { geo in
+            let discDiameter = (arcRadius(in: geo.size) + arcLineWidth / 2 + 4) * 2
+
             ZStack {
+                Circle()
+                    .fill(.ultraThinMaterial)
+                    .frame(width: discDiameter, height: discDiameter)
+
                 Canvas { context, size in
                     drawArc(context: context, size: size)
                 }
@@ -152,15 +158,6 @@ struct ArcDialView: View {
         let radius = arcRadius(in: size)
         let startAngle = Angle.degrees(-90)
         let strokeStyle = StrokeStyle(lineWidth: arcLineWidth, lineCap: .butt)
-
-        // Contrast disc
-        let discRadius = radius + arcLineWidth / 2 + 4
-        var disc = Path()
-        disc.addEllipse(in: CGRect(
-            x: center.x - discRadius, y: center.y - discRadius,
-            width: discRadius * 2, height: discRadius * 2
-        ))
-        context.fill(disc, with: .color(Color(red: 0.96, green: 0.95, blue: 0.93).opacity(0.9)))
 
         // Track ring
         var track = Path()
