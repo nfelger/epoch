@@ -253,7 +253,6 @@ extension AppDelegate {
         stopFlashAnimation()
         statusItem.length = NSStatusItem.squareLength
         statusItem.button?.title = ""
-        let config = NSImage.SymbolConfiguration.preferringMulticolor()
         let steps = 6
         let interval = 0.175
         let totalTicks = Int(8.0 / interval)
@@ -261,6 +260,7 @@ extension AppDelegate {
         flashTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] timer in
             MainActor.assumeIsolated {
                 guard let self else { timer.invalidate(); return }
+                let config = NSImage.SymbolConfiguration.preferringMulticolor()
                 let variableValue = Double(tick % steps) / Double(steps - 1)
                 let image = NSImage(
                     systemSymbolName: "rainbow",
