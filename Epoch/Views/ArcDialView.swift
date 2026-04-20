@@ -172,7 +172,7 @@ struct ArcDialView: View {
         let totalAngle = arcAngle
         guard totalAngle > 0 else {
             context.fill(knobPath(center: center, radius: radius, angleDeg: -90, diameter: 14),
-                         with: .color(.white))
+                         with: .color(Color(nsColor: .controlBackgroundColor)))
             return
         }
 
@@ -202,7 +202,7 @@ struct ArcDialView: View {
         let knobSize: CGFloat = isDragging ? 16 : 14
         context.fill(knobPath(center: center, radius: radius,
                               angleDeg: -90 + endSweepDeg, diameter: knobSize),
-                     with: .color(.white))
+                     with: .color(Color(nsColor: .controlBackgroundColor)))
     }
 
     /// Color for each revolution layer: muted blue → rose → mauve → purple over 4 hours
