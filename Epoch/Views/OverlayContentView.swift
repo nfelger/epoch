@@ -4,10 +4,11 @@ struct OverlayContentView: View {
     @Bindable var model: TimerModel
     var onWindowDragChanged: () -> Void = {}
     var onWindowDragEnded: () -> Void = {}
+    var onDismiss: () -> Void = {}
     @State private var borderOpacity: Double = 0.4
 
     var body: some View {
-        ArcDialView(model: model)
+        ArcDialView(model: model, onDismiss: onDismiss)
             .frame(width: 142, height: 142)
             .padding(16)
             .overlay(pulsingBorder)

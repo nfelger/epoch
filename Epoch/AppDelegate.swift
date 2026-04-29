@@ -166,7 +166,8 @@ extension AppDelegate {
             onWindowDragEnded: { [weak self] in
                 self?.windowDragStartOrigin = nil
                 self?.windowDragStartMouse = nil
-            }
+            },
+            onDismiss: { [weak self] in self?.hideOverlay() }
         ))
         overlayHostingView.frame = NSRect(origin: .zero, size: panelSize)
         overlayHostingView.autoresizingMask = [.width, .height]

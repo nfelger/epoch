@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ArcDialView: View {
     @Bindable var model: TimerModel
+    var onDismiss: () -> Void = {}
     @State private var cumulativeAngle: Double = 0
     @State private var lastAngle: Double = 0
     @State private var isDragging = false
@@ -81,6 +82,11 @@ struct ArcDialView: View {
             }
             .focusable()
             .onKeyPress { press in
+                if press.key == .escape {
+                    onDismiss()
+                    return .handled
+                }
+
                 guard model.state == .inactive else { return .ignored }
 
                 if press.key == .return {
@@ -92,7 +98,7 @@ struct ArcDialView: View {
                     return .handled
                 }
 
-                if press.key == .delete {
+                if press.characters == "\u{7F}" {
                     if !typeBuffer.isEmpty {
                         typeBuffer.removeLast()
                         if let minutes = Int(typeBuffer), minutes > 0 {
