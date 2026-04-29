@@ -50,7 +50,7 @@ endif
 	$(MAKE) lint
 	$(MAKE) test
 	@# 6. Commit, tag
-	git add project.yml Epoch.xcodeproj CHANGELOG.md
+	git add project.yml Epoch/Info.plist Epoch.xcodeproj CHANGELOG.md
 	git commit -m "release: v$(VERSION)"
 	git tag -m "v$(VERSION)" "v$(VERSION)"
 	git push && git push origin "v$(VERSION)"
