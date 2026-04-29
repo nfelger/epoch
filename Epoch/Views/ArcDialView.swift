@@ -163,34 +163,6 @@ struct ArcDialView: View {
 
     // MARK: - Canvas Drawing
 
-    private func drawTickMarks(
-        context: GraphicsContext, center: CGPoint, radius: CGFloat
-    ) {
-        for idx in 0 ..< 12 {
-            let tickAngle = Angle.degrees(-90 + Double(idx) * 30).radians
-            let innerR = radius - arcLineWidth / 2 - 1
-            let outerR = radius + arcLineWidth / 2 + 1
-            var tick = Path()
-            tick.move(to: CGPoint(x: center.x + innerR * CoreGraphics.cos(tickAngle),
-                                  y: center.y + innerR * CoreGraphics.sin(tickAngle)))
-            tick.addLine(to: CGPoint(x: center.x + outerR * CoreGraphics.cos(tickAngle),
-                                     y: center.y + outerR * CoreGraphics.sin(tickAngle)))
-            context.stroke(tick,
-                           with: .color(.secondary.opacity(0.4)),
-                           style: StrokeStyle(lineWidth: 2, lineCap: .butt))
-        }
-    }
-
-    private func knobPath(
-        center: CGPoint, radius: CGFloat, angleDeg: Double, diameter: CGFloat
-    ) -> Path {
-        let rad = Angle.degrees(angleDeg).radians
-        let point = CGPoint(x: center.x + radius * CoreGraphics.cos(rad),
-                            y: center.y + radius * CoreGraphics.sin(rad))
-        return Path(ellipseIn: CGRect(x: point.x - diameter / 2, y: point.y - diameter / 2,
-                                      width: diameter, height: diameter))
-    }
-
     private func drawArc(context: GraphicsContext, size: CGSize) {
         let center = CGPoint(x: size.width / 2, y: size.height / 2)
         let radius = arcRadius(in: size)
@@ -241,16 +213,6 @@ struct ArcDialView: View {
         context.fill(knobPath(center: center, radius: radius,
                               angleDeg: -90 + endSweepDeg, diameter: knobSize),
                      with: .color(Color(nsColor: .controlBackgroundColor)))
-    }
-
-    /// Color for each revolution layer: amber → orange → coral → rose
-    private func revolutionColor(revolution: Int) -> Color {
-        switch revolution {
-        case 0: Color(red: 0.90, green: 0.65, blue: 0.20) // amber
-        case 1: Color(red: 0.92, green: 0.50, blue: 0.20) // orange
-        case 2: Color(red: 0.90, green: 0.38, blue: 0.35) // coral
-        default: Color(red: 0.88, green: 0.30, blue: 0.45) // rose
-        }
     }
 
     // MARK: - Center Label
@@ -310,6 +272,48 @@ struct ArcDialView: View {
 
     private func angleForMinutes(_ minutes: Int) -> Double {
         Double(minutes) / 60.0 * 2 * .pi
+    }
+}
+
+// MARK: - Canvas Drawing Helpers
+
+private extension ArcDialView {
+    func drawTickMarks(
+        context: GraphicsContext, center: CGPoint, radius: CGFloat
+    ) {
+        for idx in 0 ..< 12 {
+            let tickAngle = Angle.degrees(-90 + Double(idx) * 30).radians
+            let innerR = radius - arcLineWidth / 2 - 1
+            let outerR = radius + arcLineWidth / 2 + 1
+            var tick = Path()
+            tick.move(to: CGPoint(x: center.x + innerR * CoreGraphics.cos(tickAngle),
+                                  y: center.y + innerR * CoreGraphics.sin(tickAngle)))
+            tick.addLine(to: CGPoint(x: center.x + outerR * CoreGraphics.cos(tickAngle),
+                                     y: center.y + outerR * CoreGraphics.sin(tickAngle)))
+            context.stroke(tick,
+                           with: .color(.secondary.opacity(0.4)),
+                           style: StrokeStyle(lineWidth: 2, lineCap: .butt))
+        }
+    }
+
+    func knobPath(
+        center: CGPoint, radius: CGFloat, angleDeg: Double, diameter: CGFloat
+    ) -> Path {
+        let rad = Angle.degrees(angleDeg).radians
+        let point = CGPoint(x: center.x + radius * CoreGraphics.cos(rad),
+                            y: center.y + radius * CoreGraphics.sin(rad))
+        return Path(ellipseIn: CGRect(x: point.x - diameter / 2, y: point.y - diameter / 2,
+                                      width: diameter, height: diameter))
+    }
+
+    /// Color for each revolution layer: amber → orange → coral → rose
+    func revolutionColor(revolution: Int) -> Color {
+        switch revolution {
+        case 0: Color(red: 0.90, green: 0.65, blue: 0.20) // amber
+        case 1: Color(red: 0.92, green: 0.50, blue: 0.20) // orange
+        case 2: Color(red: 0.90, green: 0.38, blue: 0.35) // coral
+        default: Color(red: 0.88, green: 0.30, blue: 0.45) // rose
+        }
     }
 }
 

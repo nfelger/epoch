@@ -331,5 +331,7 @@ class FirstMouseHostingView<Content: View>: NSHostingView<Content> {
 }
 
 class KeyablePanel: NSPanel {
-    override var canBecomeKey: Bool { true }
+    override var canBecomeKey: Bool {
+        true
+    }
 }
