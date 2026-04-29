@@ -5,6 +5,7 @@ struct ArcDialView: View {
     @State private var cumulativeAngle: Double = 0
     @State private var lastAngle: Double = 0
     @State private var isDragging = false
+    @State private var typeBuffer: String = ""
 
     private var rawSeconds: Double {
         (cumulativeAngle / (2 * .pi)) * 3600
@@ -78,6 +79,42 @@ struct ArcDialView: View {
                     NSCursor.pop()
                 }
             }
+            .focusable()
+            .onKeyPress { press in
+                guard model.state == .inactive else { return .ignored }
+
+                if press.key == .return {
+                    if let minutes = Int(typeBuffer), minutes >= 1 {
+                        cumulativeAngle = angleForMinutes(minutes)
+                        model.start(duration: Double(minutes) * 60)
+                        typeBuffer = ""
+                    }
+                    return .handled
+                }
+
+                if press.key == .delete {
+                    if !typeBuffer.isEmpty {
+                        typeBuffer.removeLast()
+                        if let minutes = Int(typeBuffer), minutes > 0 {
+                            cumulativeAngle = angleForMinutes(minutes)
+                        } else {
+                            cumulativeAngle = 0
+                        }
+                    }
+                    return .handled
+                }
+
+                let char = press.characters
+                if let digit = char.first, digit.isNumber, char.count == 1 {
+                    typeBuffer.append(digit)
+                    if let minutes = Int(typeBuffer), minutes > 0 {
+                        cumulativeAngle = angleForMinutes(minutes)
+                    }
+                    return .handled
+                }
+
+                return .ignored
+            }
         }
         .aspectRatio(1, contentMode: .fit)
     }
@@ -98,6 +135,7 @@ struct ArcDialView: View {
             cumulativeAngle = max(0, cumulativeAngle + delta)
         } else {
             isDragging = true
+            typeBuffer = ""
             if model.state == .finished {
                 model.cancel()
             } else if model.state == .running {
@@ -268,6 +306,10 @@ struct ArcDialView: View {
 
     private func formatTime(_ date: Date) -> String {
         Self.timeFormatter.string(from: date)
+    }
+
+    private func angleForMinutes(_ minutes: Int) -> Double {
+        Double(minutes) / 60.0 * 2 * .pi
     }
 }
 
