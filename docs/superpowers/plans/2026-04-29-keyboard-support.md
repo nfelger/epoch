@@ -190,12 +190,20 @@ git commit -m "feat: make overlay panel key-capable for keyboard input"
 **Files:**
 - Modify: `Epoch/Views/ArcDialView.swift`
 
-- [ ] **Step 1: Add typeBuffer state**
+- [ ] **Step 1: Add typeBuffer state and angle helper**
 
 Add to the existing `@State` properties in `ArcDialView`:
 
 ```swift
 @State private var typeBuffer: String = ""
+```
+
+Add a helper method to `ArcDialView` (e.g. after `formatTime`):
+
+```swift
+private func angleForMinutes(_ minutes: Int) -> Double {
+    Double(minutes) / 60.0 * 2 * .pi
+}
 ```
 
 - [ ] **Step 2: Add .onKeyPress modifier**
@@ -209,9 +217,8 @@ Add `.onKeyPress` after the existing `.onHover` modifier (inside the `GeometryRe
 
     if press.key == .return {
         if let minutes = Int(typeBuffer), minutes >= 1 {
-            let duration = Double(minutes) * 60
-            cumulativeAngle = duration / 3600 * 2 * .pi
-            model.start(duration: duration)
+            cumulativeAngle = angleForMinutes(minutes)
+            model.start(duration: Double(minutes) * 60)
             typeBuffer = ""
         }
         return .handled
@@ -221,7 +228,7 @@ Add `.onKeyPress` after the existing `.onHover` modifier (inside the `GeometryRe
         if !typeBuffer.isEmpty {
             typeBuffer.removeLast()
             if let minutes = Int(typeBuffer), minutes > 0 {
-                cumulativeAngle = Double(minutes) / 60.0 * 2 * .pi
+                cumulativeAngle = angleForMinutes(minutes)
             } else {
                 cumulativeAngle = 0
             }
@@ -233,7 +240,7 @@ Add `.onKeyPress` after the existing `.onHover` modifier (inside the `GeometryRe
     if let digit = char.first, digit.isNumber, char.count == 1 {
         typeBuffer.append(digit)
         if let minutes = Int(typeBuffer), minutes > 0 {
-            cumulativeAngle = Double(minutes) / 60.0 * 2 * .pi
+            cumulativeAngle = angleForMinutes(minutes)
         }
         return .handled
     }
