@@ -6,6 +6,7 @@
 
 - URL scheme (`epoch://toggle`, `epoch://open`, `epoch://close`) for external panel control — use with aerospace, Raycast, or any launcher
 - Keyboard duration input: type minutes and press Enter to start a timer
+- Escape key dismisses the overlay panel
 
 ## [0.2.0] - 2026-04-20
 
