@@ -66,6 +66,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if overlayPanel.isVisible { hideOverlay() } else { showOverlay() }
     }
 
+    func application(_ application: NSApplication, open urls: [URL]) {
+        for url in urls {
+            guard url.scheme == "epoch" else { continue }
+            switch url.host {
+            case "toggle":
+                if overlayPanel.isVisible { hideOverlay() } else { showOverlay() }
+            case "open":
+                showOverlay()
+            case "close":
+                hideOverlay()
+            default:
+                break
+            }
+        }
+    }
+
     // MARK: - Model Observation
 
     private func observeModel() {
