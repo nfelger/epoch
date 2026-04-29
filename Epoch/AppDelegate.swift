@@ -5,7 +5,7 @@ import UserNotifications
 @MainActor
 class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem!
-    var overlayPanel: NSPanel!
+    var overlayPanel: KeyablePanel!
     var overlayBackground: NSVisualEffectView!
     let timerModel = TimerModel()
 
@@ -144,7 +144,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 extension AppDelegate {
     private func setupOverlayPanel() {
         let panelSize = NSSize(width: 174, height: 174)
-        let newPanel = NSPanel(
+        let newPanel = KeyablePanel(
             contentRect: NSRect(origin: .zero, size: panelSize),
             styleMask: [.nonactivatingPanel, .fullSizeContentView],
             backing: .buffered,
@@ -205,7 +205,7 @@ extension AppDelegate {
         if overlayPanel.frame.origin == .zero {
             positionPanelBelowMenubar(overlayPanel)
         }
-        overlayPanel.orderFront(nil)
+        overlayPanel.makeKeyAndOrderFront(nil)
         updateOverlayOpacity()
     }
 
@@ -328,4 +328,8 @@ class FirstMouseHostingView<Content: View>: NSHostingView<Content> {
     override var mouseDownCanMoveWindow: Bool {
         false
     }
+}
+
+class KeyablePanel: NSPanel {
+    override var canBecomeKey: Bool { true }
 }
