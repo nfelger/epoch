@@ -30,6 +30,10 @@ targets:
         CFBundleDisplayName: Epoch
         CFBundleShortVersionString: "0.2.0"
         CFBundleVersion: "5"
+        CFBundleURLTypes:
+          - CFBundleURLName: de.nfelger.epoch
+            CFBundleURLSchemes:
+              - epoch
 
   EpochTests:
     type: bundle.unit-test
