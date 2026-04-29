@@ -28,8 +28,8 @@ targets:
       properties:
         LSUIElement: true
         CFBundleDisplayName: Epoch
-        CFBundleShortVersionString: "0.2.0"
-        CFBundleVersion: "5"
+        CFBundleShortVersionString: "0.3.0"
+        CFBundleVersion: "6"
         CFBundleURLTypes:
           - CFBundleURLName: de.nfelger.epoch
             CFBundleURLSchemes:

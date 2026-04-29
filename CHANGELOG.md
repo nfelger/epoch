@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-04-29
+
 ### Added
 
 - URL scheme (`epoch://toggle`, `epoch://open`, `epoch://close`) for external panel control — use with aerospace, Raycast, or any launcher
